@@ -5,12 +5,14 @@ import { ArrowLeftIcon, TriangleAlertIcon } from 'lucide-react';
 import { auctionDetailQuery, getPrimaryAction } from '@/entities/auction';
 import { isApiError } from '@/shared/api/api-error';
 import { formatDateTime } from '@/shared/lib/format';
+import { useTimeLeft } from '@/shared/lib/use-time-left';
 import { Badge } from '@/shared/ui/badge.component';
 import { Button } from '@/shared/ui/button.component';
 import { Card, CardContent, CardHeader } from '@/shared/ui/card.component';
 import { Skeleton } from '@/shared/ui/skeleton.component';
 import { StatePanel } from '@/shared/ui/state-panel.component';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.component';
+import { TimeLeftBadge } from '@/shared/ui/time-left-badge.component';
 import { statusBadgeVariant, tradingStatusBadgeVariant } from '@/widgets/auction-card';
 import {
   AuctionCargoBlock,
@@ -29,6 +31,10 @@ export function AuctionDetailPage() {
   const navigate = useNavigate({ from: '/auctions/$auctionUuid' });
 
   const query = useQuery(auctionDetailQuery(auctionUuid));
+  // Хук вызывается до ранних return: правило хуков не допускает условного вызова.
+  const timeLeft = useTimeLeft(
+    query.data?.status === 'Auction' ? query.data.trading.stopTime : null,
+  );
 
   if (query.isPending) {
     return (
@@ -71,6 +77,7 @@ export function AuctionDetailPage() {
     isBidder: auction.isBidder,
     yourBet: { hasBet: auction.your.hasBet, lastBet: auction.your.lastBetWithVat },
     status: auction.status,
+    isExpired: timeLeft.isExpired,
   });
 
   const showBets = () =>
@@ -121,6 +128,7 @@ export function AuctionDetailPage() {
               {auction.tradingStatusLabel}
             </Badge>
             {auction.your.hasBet ? <Badge variant="success">Моя ставка есть</Badge> : null}
+            <TimeLeftBadge timeLeft={timeLeft} prefix="До конца торгов" />
           </div>
         </CardHeader>
 

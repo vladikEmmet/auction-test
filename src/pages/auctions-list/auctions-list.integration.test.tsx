@@ -13,7 +13,8 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 beforeEach(() => {
-  resetStore(createSeed(new Date('2026-07-30T12:00:00')));
+  // Сид строится от текущего момента: у UI есть обратный отсчёт, и торги должны быть живыми.
+  resetStore(createSeed(new Date()));
 });
 
 /** Список загружен, когда скелетоны исчезли. */
@@ -107,6 +108,29 @@ describe('страница списка аукционов', () => {
     await waitFor(() => {
       expect(auctionLinks().map((link) => link.textContent)).not.toEqual(firstPage);
     });
+  });
+
+  it('показывает чипсы применённых фильтров и снимает их по клику', async () => {
+    const user = userEvent.setup();
+    const { router } = await renderApp('/auctions?load_city=Москва&is_bidder=true&page=3');
+    await waitForList();
+
+    expect(screen.getByLabelText('Активные фильтры')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Убрать фильтр: Погрузка: Москва' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Убрать фильтр: Только мои торги' }));
+
+    await waitFor(() => {
+      expect(router.state.location.search).toMatchObject({ load_city: 'Москва', page: 1 });
+    });
+    expect(router.state.location.search).not.toHaveProperty('is_bidder');
+  });
+
+  it('показывает обратный отсчёт на карточках идущих торгов', async () => {
+    await renderApp('/auctions?statuses=Auction');
+    await waitForList();
+
+    expect((await screen.findAllByText(/До конца:/)).length).toBeGreaterThan(0);
   });
 
   it('открывает детальную страницу по клику на заявку', async () => {

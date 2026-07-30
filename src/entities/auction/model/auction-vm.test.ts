@@ -28,8 +28,10 @@ describe('toAuctionCardVm', () => {
     expect(vm.tradingStatusLabel).toBe('Не участвую');
   });
 
-  it('шаг ставки в списочном DTO отсутствует и остаётся null', () => {
-    expect(toAuctionCardVm(toListItem(record(0))).price.step).toBeNull();
+  it('вместо отсутствующего шага отдаёт стартовую цену из списочного DTO', () => {
+    const vm = toAuctionCardVm(toListItem(record(0)));
+    expect(vm.price).not.toHaveProperty('step');
+    expect(vm.price.start).toBe(record(0).detail.trading.price.start);
   });
 
   it('переживает отсутствие блоков price и your', () => {
@@ -168,6 +170,25 @@ describe('getPrimaryAction', () => {
 
   it('участнику закрытых торгов показывает ставки', () => {
     expect(auctionAction({ isBidder: true }).kind).toBe('view-bets');
+  });
+
+  it('истёкшее время гасит ставку, даже если сервер ещё разрешает', () => {
+    const expired = auctionAction({ canSetBet: true, isExpired: true });
+    expect(expired.kind).toBe('disabled');
+    expect(expired.kind === 'disabled' && expired.reason).toBe('Время торгов истекло');
+  });
+
+  it('после истечения участник всё ещё может смотреть ставки', () => {
+    expect(auctionAction({ canSetBet: true, isExpired: true, isBidder: true }).kind).toBe(
+      'view-bets',
+    );
+    expect(
+      auctionAction({
+        canSetBet: true,
+        isExpired: true,
+        yourBet: { hasBet: true, lastBet: 100 },
+      }).kind,
+    ).toBe('view-bets');
   });
 
   it('в остальных случаях отдаёт disabled с причиной', () => {

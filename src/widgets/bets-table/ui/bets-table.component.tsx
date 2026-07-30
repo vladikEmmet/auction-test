@@ -1,9 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { EyeOffIcon, GavelIcon, TriangleAlertIcon } from 'lucide-react';
+import { ArrowDownIcon, ArrowUpIcon, EyeOffIcon, GavelIcon, TriangleAlertIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import type { AuctionRestrictions } from '@/entities/auction';
-import { betListQuery, type BetVm } from '@/entities/bet';
+import {
+  betListQuery,
+  DEFAULT_BET_SORT,
+  sortBets,
+  toggleBetSort,
+  type BetSort,
+  type BetSortField,
+  type BetVm,
+} from '@/entities/bet';
 import { isApiError } from '@/shared/api/api-error';
 import { formatDateTime, formatMoney } from '@/shared/lib/format';
 import { cn } from '@/shared/lib/cn';
@@ -31,6 +39,7 @@ type BetsTableProps = {
 
 export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProps) {
   const [showCancelled, setShowCancelled] = useState(false);
+  const [sort, setSort] = useState<BetSort>(DEFAULT_BET_SORT);
 
   // История скрыта организатором — запрос не отправляем вовсе.
   const query = useQuery(
@@ -79,6 +88,26 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
   }
 
   const summary = query.data;
+  const bets = sortBets(summary.bets, sort);
+
+  const sortableHead = (field: BetSortField, label: string, align?: 'right') => (
+    <TableHead className={align === 'right' ? 'text-right' : undefined} aria-sort={ariaSort(sort, field)}>
+      <button
+        type="button"
+        onClick={() => setSort((current) => toggleBetSort(current, field))}
+        className="inline-flex items-center gap-1 uppercase tracking-wide hover:text-foreground"
+      >
+        {label}
+        {sort.field === field ? (
+          sort.direction === 'asc' ? (
+            <ArrowUpIcon className="size-3" aria-hidden />
+          ) : (
+            <ArrowDownIcon className="size-3" aria-hidden />
+          )
+        ) : null}
+      </button>
+    </TableHead>
+  );
 
   return (
     <div className="space-y-3">
@@ -103,7 +132,7 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
         </label>
       </div>
 
-      {summary.bets.length === 0 ? (
+      {bets.length === 0 ? (
         <StatePanel
           icon={GavelIcon}
           title="Ставок пока нет"
@@ -116,16 +145,16 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Место</TableHead>
+                  {sortableHead('place', 'Место')}
                   <TableHead>Перевозчик</TableHead>
-                  <TableHead className="text-right">Цена с НДС</TableHead>
+                  {sortableHead('price', 'Цена с НДС', 'right')}
                   <TableHead className="text-right">Цена без НДС</TableHead>
-                  <TableHead>Время</TableHead>
+                  {sortableHead('time', 'Время')}
                   <TableHead>Статус</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {summary.bets.map((bet) => (
+                {bets.map((bet) => (
                   <TableRow key={bet.id} className={cn(bet.isRejected && 'opacity-60')}>
                     <TableCell className="tabular">{bet.place ?? '—'}</TableCell>
                     <TableCell>
@@ -160,7 +189,7 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
           </div>
 
           <ul className="space-y-2 sm:hidden">
-            {summary.bets.map((bet) => (
+            {bets.map((bet) => (
               <li
                 key={bet.id}
                 className={cn(
@@ -195,10 +224,10 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
         </>
       )}
 
-      {summary.bets.some((bet) => bet.isRejected && bet.cancelReason) ? (
+      {bets.some((bet) => bet.isRejected && bet.cancelReason) ? (
         <Alert variant="warning">
           <AlertDescription>
-            {summary.bets
+            {bets
               .filter((bet) => bet.isRejected && bet.cancelReason)
               .map((bet) => `${bet.carrierName}: ${bet.cancelReason}`)
               .join('; ')}
@@ -207,6 +236,12 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
       ) : null}
     </div>
   );
+}
+
+/** Значение aria-sort для заголовка таблицы: озвучивает текущую сортировку. */
+function ariaSort(sort: BetSort, field: BetSortField): 'ascending' | 'descending' | 'none' {
+  if (sort.field !== field) return 'none';
+  return sort.direction === 'asc' ? 'ascending' : 'descending';
 }
 
 function BetStatus({ bet }: { bet: BetVm }) {

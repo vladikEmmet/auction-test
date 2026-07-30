@@ -1,3 +1,7 @@
+export {
+  describeActiveFilters,
+  type ActiveFilterChip,
+} from '@/features/filter-auctions/model/active-filters';
 export { useFiltersPanelStore } from '@/features/filter-auctions/model/filters-panel.store';
 export { buildListRequest, toIsoWithOffset } from '@/features/filter-auctions/model/request-builder';
 export {

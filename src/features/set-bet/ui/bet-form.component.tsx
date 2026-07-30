@@ -1,17 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { MinusIcon, PlusIcon } from 'lucide-react';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import type { AuctionDetailVm } from '@/entities/auction';
 import { useSetBetMutation } from '@/features/set-bet/api/use-set-bet';
 import {
   createBetFormSchema,
+  parsePriceInput,
   type BetFormInput,
   type BetFormOutput,
 } from '@/features/set-bet/model/bet-form.schema';
 import { isApiError } from '@/shared/api/api-error';
-import { getBetConstraints, suggestBetPrice } from '@/shared/lib/bet-rules';
-import { formatMoney } from '@/shared/lib/format';
+import {
+  getBetConstraints,
+  roundMoney,
+  suggestBetPrice,
+  vatRatioFromPrices,
+} from '@/shared/lib/bet-rules';
+import { formatDateTime, formatMoney } from '@/shared/lib/format';
+import { useTimeLeft } from '@/shared/lib/use-time-left';
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert.component';
 import { Button } from '@/shared/ui/button.component';
 import { Input } from '@/shared/ui/input.component';
@@ -37,6 +45,10 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
   const suggested = suggestBetPrice(constraints);
   const currency = auction.payment.currency;
   const mutation = useSetBetMutation(auction.uuid);
+  const timeLeft = useTimeLeft(auction.status === 'Auction' ? auction.trading.stopTime : null);
+
+  // Ставку НДС выводим из пары цен DTO, а не зашиваем 20 %.
+  const vatRatio = vatRatioFromPrices(auction.price.current, auction.price.currentNoVat);
 
   const form = useForm<BetFormInput, unknown, BetFormOutput>({
     resolver: zodResolver(createBetFormSchema(constraints)),
@@ -46,11 +58,30 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
   });
 
   const {
+    control,
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = form;
+
+  // useWatch вместо watch(): подписка через control безопасна для React Compiler.
+  const rawPrice = useWatch({ control, name: 'price' });
+  const parsedPrice = parsePriceInput(rawPrice ?? '');
+  const hasValidPrice = Number.isFinite(parsedPrice) && parsedPrice > 0;
+  const step = auction.price.step;
+
+  /** Шаг вводится кнопками: набирать «29 500» руками на телефоне неудобно. */
+  const shiftByStep = (direction: 1 | -1) => {
+    if (step == null) return;
+
+    const base = hasValidPrice ? parsedPrice : (constraints.reference ?? 0);
+    const next = roundMoney(base + direction * step);
+    if (next <= 0) return;
+
+    setValue('price', String(next), { shouldValidate: true, shouldDirty: true });
+  };
 
   const disabled = !auction.restrictions.canSetBet;
 
@@ -86,6 +117,20 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
     }
   });
 
+  if (timeLeft.isExpired) {
+    return (
+      <Alert variant="warning">
+        <div>
+          <AlertTitle>Торги завершены</AlertTitle>
+          <AlertDescription>
+            Время торгов истекло {formatDateTime(auction.trading.stopTime)}. Обновите страницу,
+            чтобы увидеть итоговый статус аукциона.
+          </AlertDescription>
+        </div>
+      </Alert>
+    );
+  }
+
   if (disabled) {
     return (
       <Alert variant="warning">
@@ -106,15 +151,49 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
         <Label htmlFor="bet-price">
           Ваша цена, ₽ {auction.trading.measurementLabel ? `(${auction.trading.measurementLabel})` : ''}
         </Label>
-        <Input
-          id="bet-price"
-          inputMode="decimal"
-          autoComplete="off"
-          autoFocus
-          aria-invalid={errors.price ? true : undefined}
-          aria-describedby="bet-price-hint"
-          {...register('price')}
-        />
+        <div className="flex items-center gap-2">
+          {step != null ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label={`Уменьшить на шаг ${formatMoney(step, { currency })}`}
+              onClick={() => shiftByStep(-1)}
+            >
+              <MinusIcon />
+            </Button>
+          ) : null}
+
+          <Input
+            id="bet-price"
+            inputMode="decimal"
+            autoComplete="off"
+            autoFocus
+            className="text-center text-base font-medium tabular"
+            aria-invalid={errors.price ? true : undefined}
+            aria-describedby="bet-price-hint"
+            {...register('price')}
+          />
+
+          {step != null ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label={`Увеличить на шаг ${formatMoney(step, { currency })}`}
+              onClick={() => shiftByStep(1)}
+            >
+              <PlusIcon />
+            </Button>
+          ) : null}
+        </div>
+
+        {vatRatio != null && hasValidPrice ? (
+          <p className="text-xs text-muted-foreground tabular">
+            ≈ {formatMoney(roundMoney(parsedPrice / vatRatio), { currency, precise: true })} без НДС
+          </p>
+        ) : null}
+
         <p id="bet-price-hint" className="text-xs text-muted-foreground">
           {buildHint(auction)}
         </p>

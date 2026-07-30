@@ -26,7 +26,7 @@ import {
 } from '@/shared/ui/select.component';
 import { StatePanel } from '@/shared/ui/state-panel.component';
 import { AuctionCard, AuctionCardSkeleton } from '@/widgets/auction-card';
-import { AuctionsFilters } from '@/widgets/auctions-filters';
+import { ActiveFilters, AuctionsFilters } from '@/widgets/auctions-filters';
 
 const SORT_LABELS: Record<SortOption, string> = {
   newest: 'Сначала новые',
@@ -117,6 +117,12 @@ export function AuctionsListPage() {
         key={JSON.stringify(search)}
         search={search}
         onApply={update}
+        onReset={() => replaceSearch(clearFilters(search))}
+      />
+
+      <ActiveFilters
+        search={search}
+        onChange={update}
         onReset={() => replaceSearch(clearFilters(search))}
       />
 

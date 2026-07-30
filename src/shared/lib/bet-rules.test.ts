@@ -5,6 +5,7 @@ import {
   isBetterBet,
   suggestBetPrice,
   validateBetPrice,
+  vatRatioFromPrices,
   type BetConstraintsInput,
 } from '@/shared/lib/bet-rules';
 
@@ -136,6 +137,27 @@ describe('suggestBetPrice', () => {
       expect(suggestion).not.toBeNull();
       expect(validateBetPrice(suggestion as number, constraints)).toEqual([]);
     }
+  });
+});
+
+describe('vatRatioFromPrices', () => {
+  it('выводит коэффициент из пары цен, а не берёт зашитые 20 %', () => {
+    expect(vatRatioFromPrices(30_000, 25_000)).toBeCloseTo(1.2, 5);
+    expect(vatRatioFromPrices(30_000, 24_590.16)).toBeCloseTo(1.22, 4);
+  });
+
+  it('без одной из цен коэффициент не выводится', () => {
+    expect(vatRatioFromPrices(null, 25_000)).toBeNull();
+    expect(vatRatioFromPrices(30_000, null)).toBeNull();
+    expect(vatRatioFromPrices(undefined, undefined)).toBeNull();
+  });
+
+  it('отбрасывает бессмысленные значения', () => {
+    expect(vatRatioFromPrices(30_000, 0)).toBeNull();
+    expect(vatRatioFromPrices(0, 25_000)).toBeNull();
+    // Цена без НДС выше цены с НДС или разница больше 100 % — данные битые.
+    expect(vatRatioFromPrices(20_000, 25_000)).toBeNull();
+    expect(vatRatioFromPrices(60_000, 25_000)).toBeNull();
   });
 });
 

@@ -51,10 +51,9 @@ export type AuctionCardVm = {
     start: number | null;
     perKm: number | null;
     /**
-     * Списочный контракт (AuctionListItemTradingPrice) не содержит шага ставки —
-     * он приходит только в детальном DTO. Поле остаётся null осознанно.
+     * Шага ставки здесь нет: AuctionListItemTradingPrice состоит из start / current /
+     * current_no_vat. Он доступен только в детальном DTO — карточка его не показывает.
      */
-    step: null;
     measurementLabel: string;
   };
   bidMeasurementType: BidMeasurementType | null;
@@ -110,7 +109,6 @@ export function toAuctionCardVm(dto: AuctionListItemDto): AuctionCardVm {
       currentNoVat: trading.price?.current_no_vat ?? null,
       start: trading.price?.start ?? null,
       perKm: main.price_per_km ?? null,
-      step: null,
       measurementLabel: measurement ? BID_MEASUREMENT_LABELS[measurement] : '',
     },
     bidMeasurementType: measurement,

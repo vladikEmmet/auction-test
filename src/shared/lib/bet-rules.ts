@@ -159,6 +159,25 @@ function formatPlain(value: number): string {
   return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(value);
 }
 
+/**
+ * Коэффициент НДС, выведенный из пары цен DTO (`current` / `current_no_vat`).
+ * Ставку налога не зашиваем: она задаётся на уровне организации
+ * (`AdmittedOrganization.current_vat_rate`) и может отличаться от 20 %.
+ * null — когда вывести не из чего; тогда превью «без НДС» просто не показывается.
+ */
+export function vatRatioFromPrices(
+  withVat: number | null | undefined,
+  noVat: number | null | undefined,
+): number | null {
+  if (withVat == null || noVat == null) return null;
+  if (!Number.isFinite(withVat) || !Number.isFinite(noVat)) return null;
+  if (noVat <= 0 || withVat <= 0) return null;
+
+  const ratio = withVat / noVat;
+  // Санитарная проверка: осмысленная ставка НДС лежит между 0 % и 100 %.
+  return ratio >= 1 && ratio <= 2 ? ratio : null;
+}
+
 /** Лучше ли ставка `candidate`, чем `current`, с точки зрения типа аукциона. */
 export function isBetterBet(candidate: number, current: number, aucType: AuctionType): boolean {
   return directionByAuctionType(aucType) === 'up' ? candidate > current : candidate < current;

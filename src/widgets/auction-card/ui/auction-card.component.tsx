@@ -5,9 +5,11 @@ import { ArrowRightIcon, MapPinIcon, PackageIcon, TruckIcon } from 'lucide-react
 import { auctionDetailQuery, getPrimaryAction, type AuctionCardVm } from '@/entities/auction';
 import { pickPrice, useVatDisplayStore } from '@/features/vat-display';
 import { formatDateTime, formatMoney, formatNumber } from '@/shared/lib/format';
+import { useTimeLeft } from '@/shared/lib/use-time-left';
 import { Badge } from '@/shared/ui/badge.component';
 import { Button } from '@/shared/ui/button.component';
 import { Card, CardContent, CardFooter, CardHeader } from '@/shared/ui/card.component';
+import { TimeLeftBadge } from '@/shared/ui/time-left-badge.component';
 import { statusBadgeVariant, tradingStatusBadgeVariant } from '@/widgets/auction-card/lib/badges';
 
 type AuctionCardProps = { auction: AuctionCardVm };
@@ -15,7 +17,8 @@ type AuctionCardProps = { auction: AuctionCardVm };
 export function AuctionCard({ auction }: AuctionCardProps) {
   const queryClient = useQueryClient();
   const priceMode = useVatDisplayStore((state) => state.mode);
-  const action = getPrimaryAction(auction);
+  const timeLeft = useTimeLeft(auction.status === 'Auction' ? auction.stopTime : null);
+  const action = getPrimaryAction({ ...auction, isExpired: timeLeft.isExpired });
 
   /** Prefetch по intent: наведение или фокус на карточке прогревает детальный запрос. */
   const prefetchDetail = () => {
@@ -55,6 +58,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
           ) : (
             <Badge variant="neutral">Ставки нет</Badge>
           )}
+          <TimeLeftBadge timeLeft={timeLeft} />
         </div>
       </CardHeader>
 
@@ -109,10 +113,11 @@ export function AuctionCard({ auction }: AuctionCardProps) {
             </dd>
           </div>
           <div>
-            {/* Шаг ставки отсутствует в списочном контракте — он есть только в детальном DTO. */}
-            <dt className="text-xs text-muted-foreground">Шаг ставки</dt>
-            <dd className="tabular" title="Шаг ставки приходит только в детальном DTO">
-              —
+            {/* Шага ставки в списочном контракте нет — он приходит только в детальном DTO,
+                поэтому третьей метрикой показываем стартовую цену. */}
+            <dt className="text-xs text-muted-foreground">Старт</dt>
+            <dd className="tabular">
+              {formatMoney(auction.price.start, { currency: auction.currency })}
             </dd>
           </div>
         </dl>

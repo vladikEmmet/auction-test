@@ -13,7 +13,8 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 beforeEach(() => {
-  resetStore(createSeed(new Date('2026-07-30T12:00:00')));
+  // Сид строится от текущего момента: у UI есть обратный отсчёт, и торги должны быть живыми.
+  resetStore(createSeed(new Date()));
 });
 
 /** Аукцион на понижение с открытыми торгами: ставки разрешены. */
@@ -45,6 +46,25 @@ describe('установка ставки', () => {
     const expected = (auction.trading.price.available ?? 0) - (auction.trading.price.step ?? 0);
     expect(priceInput()).toHaveValue(String(expected));
     expect(within(dialog()).getByText(/Доступная цена/)).toBeInTheDocument();
+  });
+
+  it('кнопки шага двигают цену и обновляют превью без НДС', async () => {
+    const user = userEvent.setup();
+    const auction = getAuction(DOWN_AUCTION)!;
+    const step = auction.trading.price.step!;
+
+    await renderApp(`/auctions/${DOWN_AUCTION}/bet`);
+    await screen.findByRole('dialog');
+
+    const before = Number((priceInput() as HTMLInputElement).value);
+    expect(before).toBeGreaterThan(0);
+    expect(within(dialog()).getByText(/без НДС/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Уменьшить на шаг/ }));
+    expect(priceInput()).toHaveValue(String(before - step));
+
+    await user.click(screen.getByRole('button', { name: /Увеличить на шаг/ }));
+    expect(priceInput()).toHaveValue(String(before));
   });
 
   it('не отправляет запрос при нарушении правил торгов', async () => {
@@ -161,6 +181,22 @@ describe('установка ставки', () => {
 
     await waitFor(() => expect(router.state.location.search).toMatchObject({ tab: 'bets' }));
     expect(await screen.findByText(/Участников: \d+/)).toBeInTheDocument();
+  });
+
+  it('сортирует историю ставок по клику на заголовок колонки', async () => {
+    const user = userEvent.setup();
+    await renderApp(`/auctions/${DOWN_AUCTION}?tab=bets`);
+
+    const priceHeader = await screen.findByRole('button', { name: /Цена с НДС/ });
+    const column = () => screen.getByRole('columnheader', { name: /Цена с НДС/ });
+
+    expect(column()).toHaveAttribute('aria-sort', 'none');
+
+    await user.click(priceHeader);
+    await waitFor(() => expect(column()).toHaveAttribute('aria-sort', 'ascending'));
+
+    await user.click(priceHeader);
+    await waitFor(() => expect(column()).toHaveAttribute('aria-sort', 'descending'));
   });
 
   it('показывает 404, если аукциона нет', async () => {
