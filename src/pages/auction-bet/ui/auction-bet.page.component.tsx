@@ -59,7 +59,7 @@ export function AuctionBetPage() {
             {query.data.your.hasBet ? (
               <Alert variant="info">
                 <AlertDescription>
-                  Ваша текущая ставка: {formatMoney(query.data.your.lastBetWithVat)} (
+                  Ваша текущая ставка: {formatMoney(query.data.your.lastBetWithVat, { currency: query.data.payment.currency })} (
                   {query.data.tradingStatusLabel}).
                 </AlertDescription>
               </Alert>

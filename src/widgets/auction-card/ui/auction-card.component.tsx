@@ -50,7 +50,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
           </Badge>
           {auction.yourBet.hasBet ? (
             <Badge variant="success">
-              Моя ставка: {formatMoney(auction.yourBet.lastBet)}
+              Моя ставка: {formatMoney(auction.yourBet.lastBet, { currency: auction.currency })}
             </Badge>
           ) : (
             <Badge variant="neutral">Ставки нет</Badge>
@@ -96,12 +96,16 @@ export function AuctionCard({ auction }: AuctionCardProps) {
             <dt className="text-xs text-muted-foreground">
               Цена {priceMode === 'no_vat' ? 'без НДС' : 'с НДС'}
             </dt>
-            <dd className="font-semibold tabular">{formatMoney(price)}</dd>
+            <dd className="font-semibold tabular">
+              {formatMoney(price, { currency: auction.currency })}
+            </dd>
           </div>
           <div>
             <dt className="text-xs text-muted-foreground">За км</dt>
             <dd className="tabular">
-              {auction.price.perKm == null ? '—' : formatMoney(auction.price.perKm, true)}
+              {auction.price.perKm == null
+                ? '—'
+                : formatMoney(auction.price.perKm, { currency: auction.currency, precise: true })}
             </dd>
           </div>
           <div>

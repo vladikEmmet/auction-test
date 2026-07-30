@@ -67,10 +67,14 @@ export function AuctionDetailPage() {
   const auction = query.data;
   const action = getPrimaryAction({
     canSetBet: auction.restrictions.canSetBet,
-    isBidder: auction.your.hasBet,
+    // is_bidder остаётся true даже после отмены ставки — участнику доступна история торгов.
+    isBidder: auction.isBidder,
     yourBet: { hasBet: auction.your.hasBet, lastBet: auction.your.lastBetWithVat },
     status: auction.status,
   });
+
+  const showBets = () =>
+    void navigate({ search: (previous) => ({ ...previous, tab: 'bets' as const }) });
 
   return (
     <div className="space-y-4">
@@ -97,10 +101,16 @@ export function AuctionDetailPage() {
                   {action.label}
                 </Link>
               </Button>
-            ) : (
-              <Button disabled title={action.kind === 'disabled' ? action.reason : undefined}>
-                {action.kind === 'disabled' ? action.label : 'Ставка недоступна'}
+            ) : action.kind === 'view-bets' ? (
+              <Button variant="secondary" onClick={showBets}>
+                {action.label}
               </Button>
+            ) : (
+              <div className="flex flex-col items-end gap-1">
+                <Button disabled>{action.label}</Button>
+                {/* Причина выводится текстом: title у disabled-кнопки не читается скринридером. */}
+                <span className="text-xs text-muted-foreground">{action.reason}</span>
+              </div>
             )}
           </div>
 
@@ -150,7 +160,11 @@ export function AuctionDetailPage() {
         </TabsContent>
 
         <TabsContent value="bets">
-          <BetsTable auctionUuid={auctionUuid} restrictions={auction.restrictions} />
+          <BetsTable
+            auctionUuid={auctionUuid}
+            restrictions={auction.restrictions}
+            currency={auction.payment.currency}
+          />
         </TabsContent>
       </Tabs>
 

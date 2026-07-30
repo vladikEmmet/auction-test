@@ -11,6 +11,7 @@ import {
   BID_MEASUREMENT_LABELS,
   TRADING_STATUS_LABELS,
 } from '@/shared/api/contracts';
+import { currencyFromCode } from '@/shared/lib/format';
 
 export type AuctionCardVm = {
   /** Роутинг идёт по order_uid: именно он подставляется в /auctions/{auctionUuid}. */
@@ -24,6 +25,8 @@ export type AuctionCardVm = {
   tradingStatus: ListTradingStatus;
   tradingStatusLabel: string;
   organizerName: string | null;
+  /** Буквенный код валюты из payment.currency_code — нужен форматтеру цен. */
+  currency: string;
   route: {
     fromCity: string;
     toCity: string;
@@ -68,7 +71,7 @@ export type AuctionCardVm = {
 };
 
 export function toAuctionCardVm(dto: AuctionListItemDto): AuctionCardVm {
-  const { main, trading, route, cargo, organizer } = dto;
+  const { main, trading, route, cargo, organizer, payment } = dto;
   const addressHidden = trading.hide_points_address_and_contacts;
   const measurement = trading.bid_measurement_type ?? null;
 
@@ -83,6 +86,7 @@ export function toAuctionCardVm(dto: AuctionListItemDto): AuctionCardVm {
     tradingStatus: trading.status_mobile,
     tradingStatusLabel: TRADING_STATUS_LABELS[trading.status_mobile],
     organizerName: organizer.is_hide_organization ? null : organizer.organization_name,
+    currency: currencyFromCode(payment.currency_code),
     route: {
       fromCity: route.load.city,
       toCity: route.unload.city,

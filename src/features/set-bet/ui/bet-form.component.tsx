@@ -35,6 +35,7 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
     step: auction.price.step,
   });
   const suggested = suggestBetPrice(constraints);
+  const currency = auction.payment.currency;
   const mutation = useSetBetMutation(auction.uuid);
 
   const form = useForm<BetFormInput, unknown, BetFormOutput>({
@@ -57,7 +58,7 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
     try {
       await mutation.mutateAsync(price);
       toast.success('Ставка принята', {
-        description: `${formatMoney(price)} — аукцион №${auction.cargoNum}`,
+        description: `${formatMoney(price, { currency })} — аукцион №${auction.cargoNum}`,
       });
       onSuccess?.();
     } catch (error) {
@@ -146,16 +147,17 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
 
 function buildHint(auction: AuctionDetailVm): string {
   const parts: string[] = [];
+  const money = (value: number) => formatMoney(value, { currency: auction.payment.currency });
 
   if (auction.price.available != null) {
-    parts.push(`Доступная цена: ${formatMoney(auction.price.available)}`);
+    parts.push(`Доступная цена: ${money(auction.price.available)}`);
   } else if (auction.price.current != null) {
-    parts.push(`Текущая цена: ${formatMoney(auction.price.current)}`);
+    parts.push(`Текущая цена: ${money(auction.price.current)}`);
   }
 
-  if (auction.price.step != null) parts.push(`шаг ${formatMoney(auction.price.step)}`);
-  if (auction.price.min != null) parts.push(`мин. ${formatMoney(auction.price.min)}`);
-  if (auction.price.max != null) parts.push(`макс. ${formatMoney(auction.price.max)}`);
+  if (auction.price.step != null) parts.push(`шаг ${money(auction.price.step)}`);
+  if (auction.price.min != null) parts.push(`мин. ${money(auction.price.min)}`);
+  if (auction.price.max != null) parts.push(`макс. ${money(auction.price.max)}`);
 
   return parts.length > 0 ? `${parts.join(', ')}.` : 'Укажите цену больше 0.';
 }

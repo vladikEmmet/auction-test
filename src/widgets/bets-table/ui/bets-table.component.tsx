@@ -25,9 +25,11 @@ import {
 type BetsTableProps = {
   auctionUuid: string;
   restrictions: AuctionRestrictions;
+  /** Валюта аукциона: в BetItem её нет, поэтому приходит из детального DTO. */
+  currency: string;
 };
 
-export function BetsTable({ auctionUuid, restrictions }: BetsTableProps) {
+export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProps) {
   const [showCancelled, setShowCancelled] = useState(false);
 
   // История скрыта организатором — запрос не отправляем вовсе.
@@ -140,10 +142,10 @@ export function BetsTable({ auctionUuid, restrictions }: BetsTableProps) {
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-medium tabular">
-                      {formatMoney(bet.priceWithVat)}
+                      {formatMoney(bet.priceWithVat, { currency })}
                     </TableCell>
                     <TableCell className="text-right tabular text-muted-foreground">
-                      {formatMoney(bet.priceNoVat)}
+                      {formatMoney(bet.priceNoVat, { currency })}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-xs text-muted-foreground tabular">
                       {formatDateTime(bet.createdAt)}
@@ -175,9 +177,9 @@ export function BetsTable({ auctionUuid, restrictions }: BetsTableProps) {
                     <p className="text-xs text-muted-foreground">ИНН {bet.carrierInn}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold tabular">{formatMoney(bet.priceWithVat)}</p>
+                    <p className="font-semibold tabular">{formatMoney(bet.priceWithVat, { currency })}</p>
                     <p className="text-xs text-muted-foreground tabular">
-                      без НДС {formatMoney(bet.priceNoVat)}
+                      без НДС {formatMoney(bet.priceNoVat, { currency })}
                     </p>
                   </div>
                 </div>

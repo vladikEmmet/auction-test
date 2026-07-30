@@ -13,6 +13,7 @@ import {
   PAYMENT_DELAY_LABELS,
   TRADING_STATUS_LABELS,
 } from '@/shared/api/contracts';
+import { currencyFromCode } from '@/shared/lib/format';
 
 export type AuctionRestrictions = {
   canSetBet: boolean;
@@ -53,6 +54,8 @@ export type AuctionDetailVm = {
   tradingStatus: TradingStatus;
   tradingStatusLabel: string;
   restrictions: AuctionRestrictions;
+  /** Пользователь участвовал в торгах: остаётся true, даже если его ставку отменили. */
+  isBidder: boolean;
   organizer: {
     name: string;
     inn: string;
@@ -106,6 +109,8 @@ export type AuctionDetailVm = {
     delayLabel: string | null;
     prepay: string | null;
     currencyCode: string;
+    /** Буквенный код валюты для Intl; `currencyCode` — исходный числовой из DTO. */
+    currency: string;
   };
   trading: {
     startTime: string;
@@ -221,6 +226,7 @@ export function toAuctionDetailVm(dto: AuctionShowResponseDto): AuctionDetailVm 
       noViewCargoPrice: trading.no_view_cargo_price,
       hidePlaces: trading.hide_places,
     },
+    isBidder: trading.is_bidder,
     organizer: {
       name: organizer.organization_name,
       inn: organizer.organization_inn,
@@ -277,6 +283,7 @@ export function toAuctionDetailVm(dto: AuctionShowResponseDto): AuctionDetailVm 
       delayLabel,
       prepay: payment.prepay ?? null,
       currencyCode: payment.currency_code,
+      currency: currencyFromCode(payment.currency_code),
     },
     trading: {
       startTime: trading.start_time,

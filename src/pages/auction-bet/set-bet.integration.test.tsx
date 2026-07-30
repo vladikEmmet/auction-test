@@ -151,6 +151,18 @@ describe('установка ставки', () => {
     expect(screen.queryByText(/Участников:/)).not.toBeInTheDocument();
   });
 
+  it('участнику закрытых торгов даёт открыть историю ставок с деталки', async () => {
+    const user = userEvent.setup();
+    // Пятый аукцион: ставки запрещены, но пользователь в торгах участвовал.
+    const { router } = await renderApp(`/auctions/${CLOSED_AUCTION}`);
+
+    const button = await screen.findByRole('button', { name: 'Смотреть ставки' });
+    await user.click(button);
+
+    await waitFor(() => expect(router.state.location.search).toMatchObject({ tab: 'bets' }));
+    expect(await screen.findByText(/Участников: \d+/)).toBeInTheDocument();
+  });
+
   it('показывает 404, если аукциона нет', async () => {
     await renderApp('/auctions/00000000-0000-4000-8000-000000000000');
 

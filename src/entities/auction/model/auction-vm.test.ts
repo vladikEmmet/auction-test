@@ -49,6 +49,10 @@ describe('toAuctionCardVm', () => {
     expect(vm.route.fromCity).not.toBe('');
   });
 
+  it('берёт валюту из payment.currency_code', () => {
+    expect(toAuctionCardVm(toListItem(record(0))).currency).toBe('RUB');
+  });
+
   it('схлопывает незнакомый торговый статус в Unknown', () => {
     // Девятая запись: status_mobile = OnPending, которого нет в списочном enum.
     const listItem = toListItem(record(8));
@@ -95,6 +99,37 @@ describe('toAuctionDetailVm', () => {
     expect(toAuctionDetailVm(record(0).detail).cargo.car).not.toBeNull();
   });
 
+  it('пробрасывает is_bidder отдельно от наличия активной ставки', () => {
+    const detail = structuredClone(record(0).detail);
+    detail.trading.can_set_bet = false;
+    detail.trading.is_bidder = true;
+    detail.trading.your = { bet: false, last_bet: null, last_bet_with_vat: null, win: false };
+
+    const vm = toAuctionDetailVm(detail);
+    // Ставку отменили: своей ставки нет, но участником пользователь остался.
+    expect(vm.your.hasBet).toBe(false);
+    expect(vm.isBidder).toBe(true);
+    expect(
+      getPrimaryAction({
+        canSetBet: vm.restrictions.canSetBet,
+        isBidder: vm.isBidder,
+        yourBet: { hasBet: vm.your.hasBet, lastBet: vm.your.lastBetWithVat },
+        status: vm.status,
+      }).kind,
+    ).toBe('view-bets');
+  });
+
+  it('переводит числовой код валюты в буквенный', () => {
+    const detail = structuredClone(record(0).detail);
+    expect(toAuctionDetailVm(detail).payment.currency).toBe('RUB');
+
+    detail.payment.currency_code = '840';
+    expect(toAuctionDetailVm(detail).payment.currency).toBe('USD');
+
+    detail.payment.currency_code = 'что-то новое';
+    expect(toAuctionDetailVm(detail).payment.currency).toBe('RUB');
+  });
+
   it('собирает подпись отсрочки платежа из delay и delay_type', () => {
     const vm = toAuctionDetailVm(record(0).detail);
     expect(vm.payment.delayLabel).toMatch(/^\d+ (календарных|рабочих) дней$/);
@@ -112,7 +147,7 @@ describe('toAuctionDetailVm', () => {
 });
 
 describe('getPrimaryAction', () => {
-  const auction = (overrides: Partial<Parameters<typeof getPrimaryAction>[0]>) =>
+  const auctionAction = (overrides: Partial<Parameters<typeof getPrimaryAction>[0]>) =>
     getPrimaryAction({
       canSetBet: false,
       isBidder: false,
@@ -122,25 +157,25 @@ describe('getPrimaryAction', () => {
     });
 
   it('предлагает сделать ставку, когда торги открыты и ставки нет', () => {
-    expect(auction({ canSetBet: true }).kind).toBe('set-bet');
+    expect(auctionAction({ canSetBet: true }).kind).toBe('set-bet');
   });
 
   it('предлагает изменить ставку, когда своя ставка уже есть', () => {
-    expect(auction({ canSetBet: true, yourBet: { hasBet: true, lastBet: 100 } }).kind).toBe(
+    expect(auctionAction({ canSetBet: true, yourBet: { hasBet: true, lastBet: 100 } }).kind).toBe(
       'edit-bet',
     );
   });
 
   it('участнику закрытых торгов показывает ставки', () => {
-    expect(auction({ isBidder: true }).kind).toBe('view-bets');
+    expect(auctionAction({ isBidder: true }).kind).toBe('view-bets');
   });
 
   it('в остальных случаях отдаёт disabled с причиной', () => {
-    const planning = auction({ status: 'Planning' });
+    const planning = auctionAction({ status: 'Planning' });
     expect(planning.kind).toBe('disabled');
     expect(planning.kind === 'disabled' && planning.reason).toBe('Торги ещё не начались');
 
-    const finished = auction({ status: 'Finished' });
+    const finished = auctionAction({ status: 'Finished' });
     expect(finished.kind === 'disabled' && finished.reason).toBe('Торги завершены');
   });
 });

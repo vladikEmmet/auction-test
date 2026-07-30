@@ -1,17 +1,51 @@
 const EMPTY = '—';
 
-const moneyFormatter = new Intl.NumberFormat('ru-RU', {
-  style: 'currency',
-  currency: 'RUB',
-  maximumFractionDigits: 0,
-});
+export const DEFAULT_CURRENCY = 'RUB';
 
-const moneyPreciseFormatter = new Intl.NumberFormat('ru-RU', {
-  style: 'currency',
-  currency: 'RUB',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+/**
+ * В DTO валюта приходит числовым кодом ISO 4217 (`payment.currency_code = "643"`),
+ * а Intl ждёт буквенный. Незнакомый код не должен ронять форматирование — падаем
+ * на рубли, но не печатаем сырое число вместо символа валюты.
+ */
+const ISO_4217_NUMERIC_TO_ALPHA: Record<string, string> = {
+  '643': 'RUB',
+  '840': 'USD',
+  '978': 'EUR',
+  '398': 'KZT',
+  '933': 'BYN',
+  '156': 'CNY',
+  '944': 'AZN',
+  '051': 'AMD',
+  '981': 'GEL',
+  '860': 'UZS',
+};
+
+export function currencyFromCode(code: string | number | null | undefined): string {
+  if (code == null) return DEFAULT_CURRENCY;
+  const normalized = String(code).padStart(3, '0');
+  return ISO_4217_NUMERIC_TO_ALPHA[normalized] ?? DEFAULT_CURRENCY;
+}
+
+/** Intl.NumberFormat дорогой в создании — кэшируем по валюте и точности. */
+const moneyFormatters = new Map<string, Intl.NumberFormat>();
+
+function moneyFormatter(currency: string, precise: boolean): Intl.NumberFormat {
+  const key = `${currency}:${precise}`;
+  let formatter = moneyFormatters.get(key);
+
+  if (!formatter) {
+    formatter = new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency,
+      ...(precise
+        ? { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+        : { maximumFractionDigits: 0 }),
+    });
+    moneyFormatters.set(key, formatter);
+  }
+
+  return formatter;
+}
 
 const numberFormatter = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 3 });
 
@@ -20,9 +54,21 @@ export function formatEmpty(value: string | null | undefined): string {
   return value == null || value === '' ? EMPTY : value;
 }
 
-export function formatMoney(value: number | null | undefined, precise = false): string {
+export type MoneyOptions = {
+  /** Буквенный код валюты; получать из `currencyFromCode`. */
+  currency?: string;
+  /** Две цифры после запятой — для цены за км и прочих мелких величин. */
+  precise?: boolean;
+};
+
+export function formatMoney(
+  value: number | null | undefined,
+  options: MoneyOptions = {},
+): string {
   if (value == null || !Number.isFinite(value)) return EMPTY;
-  return precise ? moneyPreciseFormatter.format(value) : moneyFormatter.format(value);
+  return moneyFormatter(options.currency ?? DEFAULT_CURRENCY, options.precise ?? false).format(
+    value,
+  );
 }
 
 export function formatNumber(value: number | null | undefined, unit?: string): string {

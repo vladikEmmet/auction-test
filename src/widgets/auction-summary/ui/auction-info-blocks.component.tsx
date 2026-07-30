@@ -1,7 +1,7 @@
 import { LockIcon } from 'lucide-react';
 
 import type { AuctionDetailVm } from '@/entities/auction';
-import { formatDateTime, formatEmpty, formatNumber } from '@/shared/lib/format';
+import { formatDateTime, formatEmpty, formatMoney, formatNumber } from '@/shared/lib/format';
 import { Alert, AlertDescription } from '@/shared/ui/alert.component';
 import { Badge } from '@/shared/ui/badge.component';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.component';
@@ -86,7 +86,7 @@ export function AuctionCargoBlock({ auction }: { auction: AuctionDetailVm }) {
             {
               label: 'Цена груза',
               value: cargo.price ? (
-                `${cargo.price} ₽`
+                formatMoney(Number(cargo.price), { currency: auction.payment.currency })
               ) : (
                 <span className="text-muted-foreground">скрыта организатором</span>
               ),
@@ -142,7 +142,10 @@ export function AuctionPaymentBlock({ auction }: { auction: AuctionDetailVm }) {
             { label: 'Форма оплаты', value: auction.payment.form },
             { label: 'Отсрочка', value: formatEmpty(auction.payment.delayLabel) },
             { label: 'Предоплата', value: formatEmpty(auction.payment.prepay) },
-            { label: 'Валюта', value: auction.payment.currencyCode },
+            {
+              label: 'Валюта',
+              value: `${auction.payment.currency} (${auction.payment.currencyCode})`,
+            },
             { label: 'Условие', value: formatEmpty(auction.payment.condition), wide: true },
           ]}
         />

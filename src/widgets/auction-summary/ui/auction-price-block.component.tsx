@@ -15,6 +15,8 @@ export function AuctionPriceBlock({ auction }: { auction: AuctionDetailVm }) {
   const step = noVat ? auction.price.stepNoVat : auction.price.step;
   const start = pickPrice(mode, auction.price.start, auction.price.startNoVat);
   const yourBet = noVat ? auction.your.lastBet : auction.your.lastBetWithVat;
+  const currency = auction.payment.currency;
+  const money = (value: number | null) => formatMoney(value, { currency });
 
   return (
     <Card>
@@ -24,24 +26,27 @@ export function AuctionPriceBlock({ auction }: { auction: AuctionDetailVm }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3 rounded-lg bg-secondary/60 p-3 sm:grid-cols-4">
-          <Metric label={`Текущая цена${noVat ? ' без НДС' : ''}`} value={formatMoney(current)} accent />
-          <Metric label="Доступная цена" value={formatMoney(available)} />
-          <Metric label="Шаг ставки" value={formatMoney(step)} />
+          <Metric label={`Текущая цена${noVat ? ' без НДС' : ''}`} value={money(current)} accent />
+          <Metric label="Доступная цена" value={money(available)} />
+          <Metric label="Шаг ставки" value={money(step)} />
           <Metric
             label={`За км (${auction.trading.measurementLabel || 'за рейс'})`}
-            value={formatMoney(auction.price.perKm, true)}
+            value={formatMoney(auction.price.perKm, { currency, precise: true })}
           />
         </div>
 
         <FieldList
           fields={[
-            { label: 'Стартовая цена', value: formatMoney(start) },
-            { label: 'Мин. / макс.', value: `${formatMoney(auction.price.min)} — ${formatMoney(auction.price.max)}` },
+            { label: 'Стартовая цена', value: money(start) },
+            {
+              label: 'Мин. / макс.',
+              value: `${money(auction.price.min)} — ${money(auction.price.max)}`,
+            },
             {
               label: 'Ваша ставка',
               value: auction.your.hasBet ? (
                 <span className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold tabular">{formatMoney(yourBet)}</span>
+                  <span className="font-semibold tabular">{money(yourBet)}</span>
                   <Badge variant={auction.your.win ? 'success' : 'neutral'}>
                     {auction.your.win ? 'Победа' : auction.tradingStatusLabel}
                   </Badge>
