@@ -1,7 +1,10 @@
 import type { AuctionStatus, TradingStatus } from '@/shared/api/contracts';
+
 import type { BadgeProps } from '@/shared/ui/badge.component';
 
 type BadgeVariant = NonNullable<BadgeProps['variant']>;
+
+/** Соответствие enum'ов статусов вариантам бейджа — презентация сущности «аукцион». */
 
 export function statusBadgeVariant(status: AuctionStatus): BadgeVariant {
   switch (status) {

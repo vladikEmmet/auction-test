@@ -1,5 +1,4 @@
-export { CITY_DICTIONARY, CITY_NAMES, findCityByName } from '@/shared/config/cities';
-
+/** Справочники, нужные только генератору мок-данных. Города живут в shared/config/cities. */
 export const BODY_TYPES = [
   'тентованный',
   'рефрижератор',

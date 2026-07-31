@@ -1,21 +1,12 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { renderApp } from '@/app/testing/render-app';
-import { server } from '@/shared/api/msw/node';
-import { createSeed, uuidFor } from '@/shared/api/msw/seed';
-import { getAuction, getBets, resetStore } from '@/shared/api/msw/store';
+import '@/testing/integration-setup';
+import { uuidFor } from '@/shared/api/msw/seed';
+import { getAuction, getBets } from '@/shared/api/msw/store';
 import { CURRENT_USER } from '@/shared/config/env';
-
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
-beforeEach(() => {
-  // Сид строится от текущего момента: у UI есть обратный отсчёт, и торги должны быть живыми.
-  resetStore(createSeed(new Date()));
-});
+import { renderApp } from '@/testing/render-app';
 
 /** Аукцион на понижение с открытыми торгами: ставки разрешены. */
 const DOWN_AUCTION = uuidFor(0);

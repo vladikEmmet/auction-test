@@ -11,11 +11,11 @@ import { roundMoney } from '@/shared/lib/bet-rules';
 import {
   BODY_TYPES,
   CARGO_NAMES,
-  CITY_DICTIONARY,
   COMPETITORS,
   ORGANIZATIONS,
   PAYMENT_FORMS,
 } from '@/shared/api/msw/dictionaries';
+import { CITY_DICTIONARY } from '@/shared/config/cities';
 import { withoutVat, type AuctionRecord } from '@/shared/api/msw/store';
 
 const TOTAL_AUCTIONS = 57;

@@ -1,5 +1,8 @@
 import { Link, Outlet } from '@tanstack/react-router';
 import { TruckIcon } from 'lucide-react';
+import { Suspense } from 'react';
+
+import { Skeleton } from '@/shared/ui/skeleton.component';
 
 export function RootLayout() {
   return (
@@ -17,7 +20,17 @@ export function RootLayout() {
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-5 sm:px-6 sm:py-6">
-        <Outlet />
+        {/* Ожидание чанка страницы: тот же скелетон, что и при загрузке данных. */}
+        <Suspense
+          fallback={
+            <div className="space-y-4" aria-busy aria-label="Загрузка страницы">
+              <Skeleton className="h-9 w-64" />
+              <Skeleton className="h-40 w-full" />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
 
       <footer className="border-t border-border py-4 text-center text-xs text-muted-foreground">

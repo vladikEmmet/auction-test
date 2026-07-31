@@ -1,21 +1,11 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { delay, http, HttpResponse } from 'msw';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { renderApp } from '@/app/testing/render-app';
+import '@/testing/integration-setup';
 import { server } from '@/shared/api/msw/node';
-import { createSeed } from '@/shared/api/msw/seed';
-import { resetStore } from '@/shared/api/msw/store';
-
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
-beforeEach(() => {
-  // Сид строится от текущего момента: у UI есть обратный отсчёт, и торги должны быть живыми.
-  resetStore(createSeed(new Date()));
-});
+import { renderApp } from '@/testing/render-app';
 
 /** Список загружен, когда скелетоны исчезли. */
 const waitForList = () =>

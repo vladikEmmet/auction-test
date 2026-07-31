@@ -2,7 +2,13 @@ import { Link } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowRightIcon, MapPinIcon, PackageIcon, TruckIcon } from 'lucide-react';
 
-import { auctionDetailQuery, getPrimaryAction, type AuctionCardVm } from '@/entities/auction';
+import {
+  auctionDetailQuery,
+  getPrimaryAction,
+  statusBadgeVariant,
+  tradingStatusBadgeVariant,
+  type AuctionCardVm,
+} from '@/entities/auction';
 import { pickPrice, useVatDisplayStore } from '@/features/vat-display';
 import { formatDateTime, formatMoney, formatNumber } from '@/shared/lib/format';
 import { useTimeLeft } from '@/shared/lib/use-time-left';
@@ -10,7 +16,6 @@ import { Badge } from '@/shared/ui/badge.component';
 import { Button } from '@/shared/ui/button.component';
 import { Card, CardContent, CardFooter, CardHeader } from '@/shared/ui/card.component';
 import { TimeLeftBadge } from '@/shared/ui/time-left-badge.component';
-import { statusBadgeVariant, tradingStatusBadgeVariant } from '@/widgets/auction-card/lib/badges';
 
 type AuctionCardProps = { auction: AuctionCardVm };
 

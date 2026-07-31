@@ -2,7 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, Outlet, useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { ArrowLeftIcon, TriangleAlertIcon } from 'lucide-react';
 
-import { auctionDetailQuery, getPrimaryAction } from '@/entities/auction';
+import {
+  auctionDetailQuery,
+  getPrimaryAction,
+  statusBadgeVariant,
+  tradingStatusBadgeVariant,
+} from '@/entities/auction';
 import { isApiError } from '@/shared/api/api-error';
 import { formatDateTime } from '@/shared/lib/format';
 import { useTimeLeft } from '@/shared/lib/use-time-left';
@@ -13,7 +18,6 @@ import { Skeleton } from '@/shared/ui/skeleton.component';
 import { StatePanel } from '@/shared/ui/state-panel.component';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.component';
 import { TimeLeftBadge } from '@/shared/ui/time-left-badge.component';
-import { statusBadgeVariant, tradingStatusBadgeVariant } from '@/widgets/auction-card';
 import {
   AuctionCargoBlock,
   AuctionOrganizerBlock,
