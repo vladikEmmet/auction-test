@@ -14,16 +14,10 @@ export function resolveTheme(
   return preference;
 }
 
-/** Кнопка переключает по кругу: системная → светлая → тёмная → системная. */
-export function nextPreference(current: ThemePreference): ThemePreference {
-  const index = THEME_PREFERENCES.indexOf(current);
-  return THEME_PREFERENCES[(index + 1) % THEME_PREFERENCES.length] ?? 'system';
-}
-
 export const THEME_LABELS: Record<ThemePreference, string> = {
   system: 'Как в системе',
-  light: 'Светлая тема',
-  dark: 'Тёмная тема',
+  light: 'Светлая',
+  dark: 'Тёмная',
 };
 
 /** Класс на <html> — единственный переключатель палитры; токены живут в index.css. */

@@ -2,10 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   applyThemeClass,
-  nextPreference,
   resolveTheme,
+  THEME_LABELS,
   THEME_PREFERENCES,
-  type ThemePreference,
 } from '@/features/theme/model/theme';
 
 describe('resolveTheme', () => {
@@ -20,24 +19,11 @@ describe('resolveTheme', () => {
   });
 });
 
-describe('nextPreference', () => {
-  it('переключает по кругу и возвращается к началу', () => {
-    expect(nextPreference('system')).toBe('light');
-    expect(nextPreference('light')).toBe('dark');
-    expect(nextPreference('dark')).toBe('system');
-  });
-
-  it('обходит все варианты ровно за один круг', () => {
-    let preference: ThemePreference = THEME_PREFERENCES[0];
-    const visited = new Set<ThemePreference>([preference]);
-
-    for (let step = 0; step < THEME_PREFERENCES.length - 1; step += 1) {
-      preference = nextPreference(preference);
-      visited.add(preference);
+describe('THEME_LABELS', () => {
+  it('подпись есть у каждого варианта: они видны на кнопках и в aria-label', () => {
+    for (const preference of THEME_PREFERENCES) {
+      expect(THEME_LABELS[preference]).toBeTruthy();
     }
-
-    expect(visited.size).toBe(THEME_PREFERENCES.length);
-    expect(nextPreference(preference)).toBe(THEME_PREFERENCES[0]);
   });
 });
 

@@ -1,16 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import {
-  nextPreference,
-  THEME_STORAGE_KEY,
-  type ThemePreference,
-} from '@/features/theme/model/theme';
+import { THEME_STORAGE_KEY, type ThemePreference } from '@/features/theme/model/theme';
 
 type ThemeState = {
+  /** `system` — пока пользователь не выбрал тему явно. */
   preference: ThemePreference;
   setPreference: (preference: ThemePreference) => void;
-  cycle: () => void;
 };
 
 /**
@@ -22,7 +18,6 @@ export const useThemeStore = create<ThemeState>()(
     (set) => ({
       preference: 'system',
       setPreference: (preference) => set({ preference }),
-      cycle: () => set((state) => ({ preference: nextPreference(state.preference) })),
     }),
     { name: THEME_STORAGE_KEY },
   ),

@@ -162,23 +162,23 @@ describe('страница списка аукционов', () => {
     expect((await screen.findAllByText(/До конца:/)).length).toBeGreaterThan(0);
   });
 
-  it('переключает тему из шапки и ставит класс на <html>', async () => {
+  it('переключает тему из шапки и отмечает активный вариант', async () => {
     const user = userEvent.setup();
     await renderApp('/auctions');
 
-    const toggle = screen.getByRole('button', { name: /Переключить на/ });
+    const group = within(screen.getByRole('group', { name: 'Тема оформления' }));
+    const option = (name: string) => group.getByRole('button', { name });
+
+    // Изначально выбран системный вариант; в jsdom matchMedia отвечает «светлая».
+    expect(option('Как в системе')).toHaveAttribute('aria-pressed', 'true');
     expect(document.documentElement).not.toHaveClass('dark');
 
-    // Системная → светлая: класса всё ещё нет.
-    await user.click(toggle);
-    await waitFor(() => expect(document.documentElement).not.toHaveClass('dark'));
-
-    // Светлая → тёмная.
-    await user.click(toggle);
+    await user.click(option('Тёмная'));
     await waitFor(() => expect(document.documentElement).toHaveClass('dark'));
+    expect(option('Тёмная')).toHaveAttribute('aria-pressed', 'true');
+    expect(option('Как в системе')).toHaveAttribute('aria-pressed', 'false');
 
-    // Тёмная → системная: в jsdom matchMedia отвечает «светлая».
-    await user.click(toggle);
+    await user.click(option('Светлая'));
     await waitFor(() => expect(document.documentElement).not.toHaveClass('dark'));
   });
 

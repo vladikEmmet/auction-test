@@ -24,10 +24,10 @@ function getSystemPrefersDark(): boolean {
 export function useTheme(): {
   preference: ThemePreference;
   theme: ResolvedTheme;
-  cycle: () => void;
+  setPreference: (preference: ThemePreference) => void;
 } {
   const preference = useThemeStore((state) => state.preference);
-  const cycle = useThemeStore((state) => state.cycle);
+  const setPreference = useThemeStore((state) => state.setPreference);
   const [systemPrefersDark, setSystemPrefersDark] = useState(getSystemPrefersDark);
 
   useEffect(() => {
@@ -46,5 +46,5 @@ export function useTheme(): {
     applyThemeClass(theme, document.documentElement);
   }, [theme]);
 
-  return { preference, theme, cycle };
+  return { preference, theme, setPreference };
 }

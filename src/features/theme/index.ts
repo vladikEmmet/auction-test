@@ -1,6 +1,5 @@
 export {
   applyThemeClass,
-  nextPreference,
   resolveTheme,
   THEME_LABELS,
   THEME_PREFERENCES,
