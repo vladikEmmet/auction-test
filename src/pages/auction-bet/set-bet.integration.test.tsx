@@ -150,6 +150,39 @@ describe('установка ставки', () => {
     expect(await screen.findByText(/Участников: \d+/)).toBeInTheDocument();
   });
 
+  it('после изменения ставки прошлая помечается неактуальной, а не дублируется', async () => {
+    const user = userEvent.setup();
+    const submit = () => user.click(screen.getByRole('button', { name: 'Отправить ставку' }));
+
+    // Первая ставка: подставленное значение уже корректно, править не нужно.
+    await renderApp(`/auctions/${DOWN_AUCTION}/bet`);
+    await screen.findByRole('dialog');
+    await submit();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    // Вторая ставка — через «Изменить ставку» на детальной странице.
+    await user.click(await screen.findByRole('link', { name: 'Изменить ставку' }));
+    await screen.findByRole('dialog');
+    await submit();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+    // В истории обе ставки, но действующая одна.
+    await user.click(screen.getByRole('tab', { name: 'Ставки' }));
+
+    const myBets = getBets(DOWN_AUCTION, false)!.filter(
+      (bet) => bet.organization_id === CURRENT_USER.organizationId,
+    );
+    expect(myBets).toHaveLength(2);
+
+    expect(await screen.findByText('Неактуальных: 1')).toBeInTheDocument();
+
+    // Ищем в таблице: мобильный список ставок рендерится в DOM параллельно и скрыт стилями.
+    const table = within(await screen.findByRole('table'));
+    expect(table.getAllByText('Неактуальна')).toHaveLength(1);
+    // Ставки конкурентов не задеты: перекрытие считается внутри организации.
+    expect(table.getAllByText('Активна').length).toBeGreaterThan(1);
+  });
+
   it('запрещает ставку, когда can_set_bet = false', async () => {
     await renderApp(`/auctions/${CLOSED_AUCTION}/bet`);
 

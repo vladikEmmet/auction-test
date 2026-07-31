@@ -115,6 +115,9 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <Badge variant="neutral">Участников: {summary.participantsCount}</Badge>
           <Badge variant="outline">Ставок: {summary.activeCount}</Badge>
+          {summary.supersededCount > 0 ? (
+            <Badge variant="outline">Неактуальных: {summary.supersededCount}</Badge>
+          ) : null}
           {summary.rejectedCount > 0 ? (
             <Badge variant="destructive">Отменённых: {summary.rejectedCount}</Badge>
           ) : null}
@@ -155,7 +158,10 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
               </TableHeader>
               <TableBody>
                 {bets.map((bet) => (
-                  <TableRow key={bet.id} className={cn(bet.isRejected && 'opacity-60')}>
+                  <TableRow
+                    key={bet.id}
+                    className={cn((bet.isRejected || bet.isSuperseded) && 'opacity-60')}
+                  >
                     <TableCell className="tabular">{bet.place ?? '—'}</TableCell>
                     <TableCell>
                       <div className="flex flex-col">
@@ -194,7 +200,7 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
                 key={bet.id}
                 className={cn(
                   'rounded-lg border border-border p-3 text-sm',
-                  bet.isRejected && 'opacity-60',
+                  (bet.isRejected || bet.isSuperseded) && 'opacity-60',
                 )}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -250,7 +256,12 @@ function BetStatus({ bet }: { bet: BetVm }) {
       {bet.isWinner ? <Badge variant="success">Победитель</Badge> : null}
       {bet.isRejected ? <Badge variant="destructive">Отменена</Badge> : null}
       {bet.isCounter ? <Badge variant="outline">Встречная</Badge> : null}
-      {!bet.isWinner && !bet.isRejected && !bet.isCounter ? (
+      {bet.isSuperseded && !bet.isRejected ? (
+        <Badge variant="outline" title="Перекрыта более поздней ставкой этого перевозчика">
+          Неактуальна
+        </Badge>
+      ) : null}
+      {!bet.isWinner && !bet.isRejected && !bet.isCounter && !bet.isSuperseded ? (
         <Badge variant="neutral">Активна</Badge>
       ) : null}
     </span>

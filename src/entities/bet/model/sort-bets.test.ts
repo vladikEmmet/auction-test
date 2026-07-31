@@ -19,6 +19,7 @@ const bet = (overrides: Partial<BetVm> & Pick<BetVm, 'id'>): BetVm => ({
   isCounter: false,
   isMine: false,
   comment: null,
+  isSuperseded: false,
   ...overrides,
 });
 
