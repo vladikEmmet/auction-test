@@ -116,6 +116,54 @@ type FiltersFormProps = {
   children: React.ReactNode;
 };
 
+type FilterFieldProps = {
+  label: string;
+  className?: string;
+  /** id выдаётся обёрткой и связывает подпись с контролом — снаружи его считать не нужно. */
+  children: (id: string) => React.ReactNode;
+};
+
+/** Выбор города из мок-словаря; «Любой город» сбрасывает фильтр. */
+function CityFilter({
+  id,
+  value,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <Select
+      value={value || ANY_CITY}
+      onValueChange={(next) => onChange(next === ANY_CITY ? '' : next)}
+    >
+      <SelectTrigger id={id}>
+        <SelectValue placeholder="Любой город" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={ANY_CITY}>Любой город</SelectItem>
+        {CITY_NAMES.map((city) => (
+          <SelectItem key={city} value={city}>
+            {city}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function FilterField({ label, className, children }: FilterFieldProps) {
+  const id = useId();
+
+  return (
+    <div className={cn('grid gap-1.5', className)}>
+      <Label htmlFor={id}>{label}</Label>
+      {children(id)}
+    </div>
+  );
+}
+
 /**
  * Поля фильтров без внешней обёртки — их переиспользуют и развёрнутая панель, и выезжающая.
  * Черновик хранится локально и применяется по кнопке: так URL меняется один раз, а не на
@@ -129,7 +177,6 @@ export function FiltersForm({
   bodyClassName,
   children,
 }: FiltersFormProps) {
-  const fieldId = useId();
   const [draft, setDraft] = useState<Draft>(() => toDraft(search));
 
   const patch = <K extends keyof Draft>(key: K, value: Draft[K]) =>
@@ -150,151 +197,131 @@ export function FiltersForm({
           bodyClassName,
         )}
       >
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-cargo-num`}>Номер заявки</Label>
-          <Input
-            id={`${fieldId}-cargo-num`}
-            value={draft.cargo_num}
-            placeholder="00000001059"
-            onChange={(event) => patch("cargo_num", event.target.value)}
-          />
-        </div>
+        <FilterField label="Номер заявки">
+          {(id) => (
+            <Input
+              id={id}
+              value={draft.cargo_num}
+              placeholder="00000001059"
+              onChange={(event) => patch('cargo_num', event.target.value)}
+            />
+          )}
+        </FilterField>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-statuses`}>Статус аукциона</Label>
-          <MultiSelect
-            id={`${fieldId}-statuses`}
-            options={statusOptions}
-            value={draft.statuses}
-            onChange={(next) => patch("statuses", next)}
-            placeholder="Любой статус"
-          />
-        </div>
+        <FilterField label="Статус аукциона">
+          {(id) => (
+            <MultiSelect
+              id={id}
+              options={statusOptions}
+              value={draft.statuses}
+              onChange={(next) => patch('statuses', next)}
+              placeholder="Любой статус"
+            />
+          )}
+        </FilterField>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-status`}>Мой торговый статус</Label>
-          <MultiSelect
-            id={`${fieldId}-status`}
-            options={tradingStatusOptions}
-            value={draft.status}
-            onChange={(next) => patch("status", next)}
-            placeholder="Любой"
-          />
-        </div>
+        <FilterField label="Мой торговый статус">
+          {(id) => (
+            <MultiSelect
+              id={id}
+              options={tradingStatusOptions}
+              value={draft.status}
+              onChange={(next) => patch('status', next)}
+              placeholder="Любой"
+            />
+          )}
+        </FilterField>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-auc-type`}>Тип аукциона</Label>
-          <MultiSelect
-            id={`${fieldId}-auc-type`}
-            options={aucTypeOptions}
-            value={draft.auc_type}
-            onChange={(next) => patch("auc_type", next)}
-            placeholder="Любой тип"
-          />
-        </div>
+        <FilterField label="Тип аукциона">
+          {(id) => (
+            <MultiSelect
+              id={id}
+              options={aucTypeOptions}
+              value={draft.auc_type}
+              onChange={(next) => patch('auc_type', next)}
+              placeholder="Любой тип"
+            />
+          )}
+        </FilterField>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-load-city`}>Город погрузки</Label>
-          <Select
-            value={draft.load_city || ANY_CITY}
-            onValueChange={(value) =>
-              patch("load_city", value === ANY_CITY ? "" : value)
-            }
-          >
-            <SelectTrigger id={`${fieldId}-load-city`}>
-              <SelectValue placeholder="Любой город" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ANY_CITY}>Любой город</SelectItem>
-              {CITY_NAMES.map((city) => (
-                <SelectItem key={city} value={city}>
-                  {city}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <FilterField label="Город погрузки">
+          {(id) => (
+            <CityFilter
+              id={id}
+              value={draft.load_city}
+              onChange={(value) => patch('load_city', value)}
+            />
+          )}
+        </FilterField>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-unload-city`}>Город выгрузки</Label>
-          <Select
-            value={draft.unload_city || ANY_CITY}
-            onValueChange={(value) =>
-              patch("unload_city", value === ANY_CITY ? "" : value)
-            }
-          >
-            <SelectTrigger id={`${fieldId}-unload-city`}>
-              <SelectValue placeholder="Любой город" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ANY_CITY}>Любой город</SelectItem>
-              {CITY_NAMES.map((city) => (
-                <SelectItem key={city} value={city}>
-                  {city}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <FilterField label="Город выгрузки">
+          {(id) => (
+            <CityFilter
+              id={id}
+              value={draft.unload_city}
+              onChange={(value) => patch('unload_city', value)}
+            />
+          )}
+        </FilterField>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-date-from`}>Погрузка с</Label>
-          <Input
-            id={`${fieldId}-date-from`}
-            type="date"
-            value={draft.load_date_from}
-            onChange={(event) => patch("load_date_from", event.target.value)}
-          />
-        </div>
+        <FilterField label="Погрузка с">
+          {(id) => (
+            <Input
+              id={id}
+              type="date"
+              value={draft.load_date_from}
+              onChange={(event) => patch('load_date_from', event.target.value)}
+            />
+          )}
+        </FilterField>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-date-to`}>Погрузка по</Label>
-          <Input
-            id={`${fieldId}-date-to`}
-            type="date"
-            value={draft.load_date_to}
-            onChange={(event) => patch("load_date_to", event.target.value)}
-          />
-        </div>
+        <FilterField label="Погрузка по">
+          {(id) => (
+            <Input
+              id={id}
+              type="date"
+              value={draft.load_date_to}
+              onChange={(event) => patch('load_date_to', event.target.value)}
+            />
+          )}
+        </FilterField>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-price-from`}>Цена от, ₽</Label>
-          <Input
-            id={`${fieldId}-price-from`}
-            inputMode="decimal"
-            value={draft.price_from}
-            placeholder="0"
-            onChange={(event) => patch("price_from", event.target.value)}
-          />
-        </div>
+        <FilterField label="Цена от, ₽">
+          {(id) => (
+            <Input
+              id={id}
+              inputMode="decimal"
+              value={draft.price_from}
+              placeholder="0"
+              onChange={(event) => patch('price_from', event.target.value)}
+            />
+          )}
+        </FilterField>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor={`${fieldId}-price-to`}>Цена до, ₽</Label>
-          <Input
-            id={`${fieldId}-price-to`}
-            inputMode="decimal"
-            value={draft.price_to}
-            placeholder="100000"
-            onChange={(event) => patch("price_to", event.target.value)}
-          />
-        </div>
+        <FilterField label="Цена до, ₽">
+          {(id) => (
+            <Input
+              id={id}
+              inputMode="decimal"
+              value={draft.price_to}
+              placeholder="100000"
+              onChange={(event) => patch('price_to', event.target.value)}
+            />
+          )}
+        </FilterField>
 
         <div className="flex items-end gap-4 sm:col-span-2">
           <label className="flex cursor-pointer items-center gap-2 text-sm">
             <Checkbox
               checked={draft.is_available}
-              onCheckedChange={(checked) =>
-                patch("is_available", checked === true)
-              }
+              onCheckedChange={(checked) => patch('is_available', checked === true)}
             />
             Только доступные
           </label>
           <label className="flex cursor-pointer items-center gap-2 text-sm">
             <Checkbox
               checked={draft.is_bidder}
-              onCheckedChange={(checked) =>
-                patch("is_bidder", checked === true)
-              }
+              onCheckedChange={(checked) => patch('is_bidder', checked === true)}
             />
             Только мои торги
           </label>

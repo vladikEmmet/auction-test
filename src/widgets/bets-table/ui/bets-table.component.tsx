@@ -158,37 +158,7 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
               </TableHeader>
               <TableBody>
                 {bets.map((bet) => (
-                  <TableRow
-                    key={bet.id}
-                    className={cn((bet.isRejected || bet.isSuperseded) && 'opacity-60')}
-                  >
-                    <TableCell className="tabular">{bet.place ?? '—'}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          {bet.carrierName}
-                          {bet.isMine ? (
-                            <Badge variant="default" className="ml-2">
-                              моя
-                            </Badge>
-                          ) : null}
-                        </span>
-                        <span className="text-xs text-muted-foreground">ИНН {bet.carrierInn}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-medium tabular">
-                      {formatMoney(bet.priceWithVat, { currency })}
-                    </TableCell>
-                    <TableCell className="text-right tabular text-muted-foreground">
-                      {formatMoney(bet.priceNoVat, { currency })}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground tabular">
-                      {formatDateTime(bet.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      <BetStatus bet={bet} />
-                    </TableCell>
-                  </TableRow>
+                  <BetRow key={bet.id} bet={bet} currency={currency} />
                 ))}
               </TableBody>
             </Table>
@@ -196,35 +166,7 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
 
           <ul className="space-y-2 sm:hidden">
             {bets.map((bet) => (
-              <li
-                key={bet.id}
-                className={cn(
-                  'rounded-lg border border-border p-3 text-sm',
-                  (bet.isRejected || bet.isSuperseded) && 'opacity-60',
-                )}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-medium">
-                      {bet.place ? `${bet.place}. ` : ''}
-                      {bet.carrierName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">ИНН {bet.carrierInn}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold tabular">{formatMoney(bet.priceWithVat, { currency })}</p>
-                    <p className="text-xs text-muted-foreground tabular">
-                      без НДС {formatMoney(bet.priceNoVat, { currency })}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <BetStatus bet={bet} />
-                  <span className="text-xs text-muted-foreground tabular">
-                    {formatDateTime(bet.createdAt)}
-                  </span>
-                </div>
-              </li>
+              <BetCard key={bet.id} bet={bet} currency={currency} />
             ))}
           </ul>
         </>
@@ -241,6 +183,76 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
         </Alert>
       ) : null}
     </div>
+  );
+}
+
+type BetRowProps = { bet: BetVm; currency: string };
+
+/** Строка истории для desktop-таблицы. */
+function BetRow({ bet, currency }: BetRowProps) {
+  return (
+    <TableRow className={cn((bet.isRejected || bet.isSuperseded) && 'opacity-60')}>
+      <TableCell className="tabular">{bet.place ?? '—'}</TableCell>
+      <TableCell>
+        <div className="flex flex-col">
+          <span className="font-medium">
+            {bet.carrierName}
+            {bet.isMine ? (
+              <Badge variant="default" className="ml-2">
+                моя
+              </Badge>
+            ) : null}
+          </span>
+          <span className="text-xs text-muted-foreground">ИНН {bet.carrierInn}</span>
+        </div>
+      </TableCell>
+      <TableCell className="text-right font-medium tabular">
+        {formatMoney(bet.priceWithVat, { currency })}
+      </TableCell>
+      <TableCell className="text-right tabular text-muted-foreground">
+        {formatMoney(bet.priceNoVat, { currency })}
+      </TableCell>
+      <TableCell className="whitespace-nowrap text-xs text-muted-foreground tabular">
+        {formatDateTime(bet.createdAt)}
+      </TableCell>
+      <TableCell>
+        <BetStatus bet={bet} />
+      </TableCell>
+    </TableRow>
+  );
+}
+
+/** Та же ставка карточкой: на узком экране таблица нечитаема. */
+function BetCard({ bet, currency }: BetRowProps) {
+  return (
+    <li
+      className={cn(
+        'rounded-lg border border-border p-3 text-sm',
+        (bet.isRejected || bet.isSuperseded) && 'opacity-60',
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="font-medium">
+            {bet.place ? `${bet.place}. ` : ''}
+            {bet.carrierName}
+          </p>
+          <p className="text-xs text-muted-foreground">ИНН {bet.carrierInn}</p>
+        </div>
+        <div className="text-right">
+          <p className="font-semibold tabular">{formatMoney(bet.priceWithVat, { currency })}</p>
+          <p className="text-xs text-muted-foreground tabular">
+            без НДС {formatMoney(bet.priceNoVat, { currency })}
+          </p>
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <BetStatus bet={bet} />
+        <span className="text-xs text-muted-foreground tabular">
+          {formatDateTime(bet.createdAt)}
+        </span>
+      </div>
+    </li>
   );
 }
 
