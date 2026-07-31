@@ -35,28 +35,38 @@ type FiltersToolbarProps = {
   search: AuctionsSearch;
   onChange: (patch: Partial<AuctionsSearch>) => void;
   onReset: () => void;
+  /** Развёрнутая панель фильтров прокручена — показываем кнопку вызова выезжающей. */
+  showFiltersButton: boolean;
 };
 
 /**
- * Липкая строка управления списком. Держится под шапкой (`top-14` совпадает с её высотой),
- * поэтому фильтры, сортировка и активные условия доступны без прокрутки к началу страницы.
+ * Строка управления списком. Пока развёрнутая панель фильтров на экране, здесь только
+ * сортировка, размер страницы и чипсы. Как только панель уезжает вверх, строка прилипает
+ * под шапкой (`top-14` = её высота) и получает кнопку вызова выезжающих фильтров.
  */
-export function FiltersToolbar({ search, onChange, onReset }: FiltersToolbarProps) {
+export function FiltersToolbar({
+  search,
+  onChange,
+  onReset,
+  showFiltersButton,
+}: FiltersToolbarProps) {
   const openFilters = useFiltersPanelStore((state) => state.open);
   const activeCount = describeActiveFilters(search).length;
 
   return (
     <div className="sticky top-14 z-30 -mx-4 border-b border-border bg-background/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <Button variant="outline" size="sm" onClick={openFilters}>
-          <SlidersHorizontalIcon />
-          Фильтры
-          {activeCount > 0 ? (
-            <Badge variant="default" className="ml-1">
-              {activeCount}
-            </Badge>
-          ) : null}
-        </Button>
+        {showFiltersButton ? (
+          <Button variant="outline" size="sm" onClick={openFilters}>
+            <SlidersHorizontalIcon />
+            Фильтры
+            {activeCount > 0 ? (
+              <Badge variant="default" className="ml-1">
+                {activeCount}
+              </Badge>
+            ) : null}
+          </Button>
+        ) : null}
 
         <div className="flex items-center gap-2">
           <Label htmlFor="sort" className="sr-only sm:not-sr-only sm:text-sm sm:font-normal sm:text-muted-foreground">

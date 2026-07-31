@@ -50,11 +50,6 @@ export function SheetHeader({ className, ...props }: React.ComponentProps<'div'>
   );
 }
 
-/** Прокручивается только тело панели: шапка и футер остаются на месте. */
-export function SheetBody({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div className={cn('flex-1 overflow-y-auto p-4 sm:p-5', className)} {...props} />;
-}
-
 export function SheetFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div

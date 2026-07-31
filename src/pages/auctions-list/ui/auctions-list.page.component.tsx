@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { PackageSearchIcon, TriangleAlertIcon } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { auctionListQuery } from '@/entities/auction';
 import {
@@ -10,15 +10,20 @@ import {
   type AuctionsSearch,
 } from '@/features/filter-auctions';
 import { isApiError } from '@/shared/api/api-error';
+import { useOutOfView } from '@/shared/lib/use-out-of-view';
 import { Button } from '@/shared/ui/button.component';
 import { Pagination } from '@/shared/ui/pagination.component';
 import { StatePanel } from '@/shared/ui/state-panel.component';
 import { AuctionCard, AuctionCardSkeleton } from '@/widgets/auction-card';
-import { AuctionsFilters, FiltersToolbar } from '@/widgets/auctions-filters';
+import { AuctionsFilters, FiltersSheet, FiltersToolbar } from '@/widgets/auctions-filters';
 
 export function AuctionsListPage() {
   const search = useSearch({ from: '/auctions' });
   const navigate = useNavigate({ from: '/auctions' });
+
+  // Пока панель фильтров на экране, липкая строка не дублирует её кнопкой.
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const areFiltersOutOfView = useOutOfView(filtersRef);
 
   const request = useMemo(() => buildListRequest(search), [search]);
   const query = useQuery(auctionListQuery(request));
@@ -40,15 +45,25 @@ export function AuctionsListPage() {
         </p>
       </header>
 
+      {/* key сбрасывает черновик фильтров при внешнем изменении URL (назад/вперёд, сброс). */}
+      <div ref={filtersRef}>
+        <AuctionsFilters
+          key={JSON.stringify(search)}
+          search={search}
+          onApply={update}
+          onReset={() => replaceSearch(clearFilters(search))}
+        />
+      </div>
+
       <FiltersToolbar
         search={search}
         onChange={update}
         onReset={() => replaceSearch(clearFilters(search))}
+        showFiltersButton={areFiltersOutOfView}
       />
 
-      {/* key сбрасывает черновик фильтров при внешнем изменении URL (назад/вперёд, сброс). */}
-      <AuctionsFilters
-        key={JSON.stringify(search)}
+      <FiltersSheet
+        key={`sheet-${JSON.stringify(search)}`}
         search={search}
         onApply={update}
         onReset={() => replaceSearch(clearFilters(search))}

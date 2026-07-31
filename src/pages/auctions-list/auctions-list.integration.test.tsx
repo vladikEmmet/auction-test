@@ -1,10 +1,11 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { delay, http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import '@/testing/integration-setup';
 import { server } from '@/shared/api/msw/node';
+import { setObservedElementsVisible } from '@/testing/intersection-observer';
 import { renderApp } from '@/testing/render-app';
 
 /** Список загружен, когда скелетоны исчезли. */
@@ -100,23 +101,41 @@ describe('страница списка аукционов', () => {
     });
   });
 
-  it('открывает фильтры из липкой панели и применяет их, не прокручивая страницу', async () => {
+  it('фильтры развёрнуты сразу, липкая кнопка не дублирует их', async () => {
+    const user = userEvent.setup();
+    const { router } = await renderApp('/auctions');
+    await waitForList();
+
+    // Панель на экране — кнопки вызова выезжающей быть не должно.
+    expect(screen.queryByRole('button', { name: /Фильтры/ })).not.toBeInTheDocument();
+
+    const target = auctionLinks()[0]!.textContent!.replace('Заявка № ', '');
+    await user.type(screen.getByLabelText('Номер заявки'), target);
+    await user.click(screen.getByRole('button', { name: /Применить/ }));
+
+    await waitFor(() => expect(router.state.location.search).toMatchObject({ cargo_num: target }));
+    await waitFor(() => expect(auctionLinks()).toHaveLength(1));
+  });
+
+  it('после прокрутки панели появляется кнопка, открывающая выезжающие фильтры', async () => {
     const user = userEvent.setup();
     const { router } = await renderApp('/auctions');
     await waitForList();
 
     const target = auctionLinks()[0]!.textContent!.replace('Заявка № ', '');
 
-    await user.click(screen.getByRole('button', { name: /Фильтры/ }));
+    // Панель фильтров ушла из области видимости — как при прокрутке списка вниз.
+    act(() => setObservedElementsVisible(false));
+
+    await user.click(await screen.findByRole('button', { name: /Фильтры/ }));
 
     const panel = within(await screen.findByRole('dialog'));
     await user.type(panel.getByLabelText('Номер заявки'), target);
     await user.click(panel.getByRole('button', { name: /Применить/ }));
 
-    // Панель закрылась, условие уехало в URL.
+    // Панель закрылась, условие уехало в URL — прокручивать страницу не пришлось.
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(router.state.location.search).toMatchObject({ cargo_num: target, page: 1 });
-
     await waitFor(() => expect(auctionLinks()).toHaveLength(1));
   });
 
