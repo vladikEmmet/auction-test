@@ -16,6 +16,7 @@ import {
   PAYMENT_FORMS,
 } from '@/shared/api/msw/dictionaries';
 import { CITY_DICTIONARY } from '@/shared/config/cities';
+import { recalculatePlaces } from '@/shared/api/msw/ranking';
 import { withoutVat, type AuctionRecord } from '@/shared/api/msw/store';
 
 const TOTAL_AUCTIONS = 57;
@@ -561,7 +562,7 @@ function buildRecord(index: number, now: Date, random: () => number): AuctionRec
     hide_bets_history: hideBetsHistory,
   };
 
-  return {
+  const record: AuctionRecord = {
     uuid: uuidFor(index),
     detail,
     bets,
@@ -579,6 +580,10 @@ function buildRecord(index: number, now: Date, random: () => number): AuctionRec
       hasYourBlock: !(edge?.noYourBlockInList ?? false),
     },
   };
+
+  // Места считаются той же функцией, что и после ставки: иначе в сиде рейтинг пустой.
+  recalculatePlaces(record);
+  return record;
 }
 
 /** Собирает набор аукционов. `now` фиксируется в тестах для воспроизводимости. */

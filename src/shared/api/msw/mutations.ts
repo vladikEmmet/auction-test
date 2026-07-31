@@ -1,36 +1,9 @@
-import type { AuctionType, BetItemDto, ValidationErrorDto } from '@/shared/api/contracts';
+import type { BetItemDto, ValidationErrorDto } from '@/shared/api/contracts';
 import { CURRENT_USER } from '@/shared/config/env';
-import {
-  getBetConstraintsFromDto,
-  isBetterBet,
-  roundMoney,
-  validateBetPrice,
-} from '@/shared/lib/bet-rules';
-import { allocateBetId, findRecord, type AuctionRecord } from '@/shared/api/msw/db';
+import { getBetConstraintsFromDto, roundMoney, validateBetPrice } from '@/shared/lib/bet-rules';
+import { allocateBetId, findRecord } from '@/shared/api/msw/db';
+import { recalculatePlaces } from '@/shared/api/msw/ranking';
 import { VAT_RATE, withoutVat } from '@/shared/api/msw/vat';
-
-/** Пересчитывает места: рейтинг строится по лучшей активной ставке каждой организации. */
-function recalculatePlaces(record: AuctionRecord): void {
-  const aucType: AuctionType = record.detail.main.auc_type;
-  const active = record.bets.filter((bet) => !bet.is_rejected);
-
-  const bestByOrganization = new Map<number, BetItemDto>();
-  for (const bet of active) {
-    const current = bestByOrganization.get(bet.organization_id);
-    if (!current || isBetterBet(bet.price_with_vat, current.price_with_vat, aucType)) {
-      bestByOrganization.set(bet.organization_id, bet);
-    }
-  }
-
-  const ranked = [...bestByOrganization.values()].sort((a, b) =>
-    isBetterBet(a.price_with_vat, b.price_with_vat, aucType) ? -1 : 1,
-  );
-  const placeByBetId = new Map(ranked.map((bet, index) => [bet.id, index + 1]));
-
-  for (const bet of record.bets) {
-    bet.place = bet.is_rejected ? null : (placeByBetId.get(bet.id) ?? null);
-  }
-}
 
 export type PlaceBetResult =
   | { ok: true; bet: BetItemDto }

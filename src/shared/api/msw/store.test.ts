@@ -110,6 +110,31 @@ describe('getBets', () => {
   });
 });
 
+describe('места в сиде', () => {
+  it('рейтинг проставлен сразу, а не появляется после первой ставки', () => {
+    const bets = getBets(DOWN_AUCTION, false)!;
+    expect(bets.length).toBeGreaterThan(1);
+    expect(bets.every((bet) => bet.place != null)).toBe(true);
+
+    const places = bets.map((bet) => bet.place);
+    expect(new Set(places).size).toBe(places.length);
+    expect(Math.min(...(places as number[]))).toBe(1);
+  });
+
+  it('места пустые только там, где организатор скрыл рейтинг', () => {
+    const withoutPlaces: string[] = [];
+
+    for (let index = 0; index < 57; index += 1) {
+      const uuid = uuidFor(index);
+      const bets = getBets(uuid, false) ?? [];
+      if (bets.length > 0 && bets.every((bet) => bet.place == null)) withoutPlaces.push(uuid);
+    }
+
+    // Единственное исключение — восьмой аукцион сида с hide_places = true.
+    expect(withoutPlaces).toEqual([uuidFor(7)]);
+  });
+});
+
 describe('placeBet', () => {
   it('отклоняет ставку, если ставки запрещены', () => {
     const result = placeBet(CLOSED_AUCTION, 1000);
