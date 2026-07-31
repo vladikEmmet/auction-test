@@ -4,17 +4,15 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
-  Link,
   redirect,
   type SearchSchemaInput,
 } from '@tanstack/react-router';
 import { lazy } from 'react';
 import { z } from 'zod';
 
+import { NotFound } from '@/app/ui/not-found.component';
 import { RootLayout } from '@/app/ui/root-layout.component';
 import { parseAuctionsSearch, type AuctionsSearch } from '@/features/filter-auctions';
-import { Button } from '@/shared/ui/button.component';
-import { StatePanel } from '@/shared/ui/state-panel.component';
 
 export type RouterContext = { queryClient: QueryClient };
 
@@ -37,17 +35,7 @@ const AuctionBetPage = lazy(async () => ({
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
-  notFoundComponent: () => (
-    <StatePanel
-      title="Страница не найдена"
-      description="Проверьте адрес — такой страницы нет."
-      action={
-        <Button asChild>
-          <Link to="/auctions">К списку аукционов</Link>
-        </Button>
-      }
-    />
-  ),
+  notFoundComponent: NotFound,
 });
 
 const indexRoute = createRoute({

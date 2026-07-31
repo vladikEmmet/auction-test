@@ -100,7 +100,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
           </div>
         </div>
 
-        <dl className="mt-auto grid grid-cols-3 gap-2 rounded-md bg-secondary/60 p-2.5">
+        <dl className="mt-auto grid grid-cols-2 gap-x-3 gap-y-2 rounded-md bg-secondary/60 p-2.5">
           <div>
             <dt className="text-xs text-muted-foreground">
               Цена {priceMode === 'no_vat' ? 'без НДС' : 'с НДС'}
@@ -118,11 +118,21 @@ export function AuctionCard({ auction }: AuctionCardProps) {
             </dd>
           </div>
           <div>
-            {/* Шага ставки в списочном контракте нет — он приходит только в детальном DTO,
-                поэтому третьей метрикой показываем стартовую цену. */}
             <dt className="text-xs text-muted-foreground">Старт</dt>
             <dd className="tabular">
               {formatMoney(auction.price.start, { currency: auction.currency })}
+            </dd>
+          </div>
+          <div>
+            {/* Шага ставки в списочном контракте нет: AuctionListItemTradingPrice — это
+                start / current / current_no_vat. Значение доступно на детальной странице,
+                выдумывать его здесь нельзя. */}
+            <dt className="text-xs text-muted-foreground">Шаг ставки</dt>
+            <dd
+              className="tabular text-muted-foreground"
+              title="Шаг приходит только в детальном DTO — откройте карточку аукциона"
+            >
+              — <span className="text-xs">в деталях</span>
             </dd>
           </div>
         </dl>
