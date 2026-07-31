@@ -10,10 +10,6 @@ function requireRootElement(): HTMLElement {
   return element;
 }
 
-/**
- * Приложение стартует только после запуска MSW, иначе первые запросы уйдут мимо моков.
- * Импорт динамический: моки и их сид уезжают в отдельный чанк, а не в основной бандл.
- */
 async function bootstrap() {
   const { startMockServer } = await import('@/shared/api/msw/browser');
   await startMockServer();

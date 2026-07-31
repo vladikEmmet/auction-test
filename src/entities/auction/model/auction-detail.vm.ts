@@ -78,7 +78,7 @@ export type AuctionCargoVm = {
   bodyType: string;
   truckCount: number;
   distanceKm: number | null;
-  /** null, когда организатор скрыл цену груза (no_view_cargo_price). */
+
   price: string | null;
   isInternational: boolean;
   containered: boolean;
@@ -100,7 +100,7 @@ export type AuctionPaymentVm = {
   delayLabel: string | null;
   prepay: string | null;
   currencyCode: string;
-  /** Буквенный код валюты для Intl; `currencyCode` — исходный числовой из DTO. */
+
   currency: string;
 };
 
@@ -153,7 +153,7 @@ export type AuctionDetailVm = {
   tradingStatus: TradingStatus;
   tradingStatusLabel: string;
   restrictions: AuctionRestrictions;
-  /** Пользователь участвовал в торгах: остаётся true, даже если его ставку отменили. */
+
   isBidder: boolean;
   organizer: AuctionOrganizerVm;
   contacts: AuctionContactVm[];
@@ -163,7 +163,12 @@ export type AuctionDetailVm = {
   trading: AuctionTradingVm;
   price: AuctionPriceVm;
   your: AuctionYourBetVm;
-  admittedOrganizations: Array<{ id: number; name: string; inn: string; isMain: boolean }>;
+  admittedOrganizations: Array<{
+    id: number;
+    name: string;
+    inn: string;
+    isMain: boolean;
+  }>;
   assembly: { num: string | null; date: string | null };
 };
 
@@ -198,7 +203,6 @@ function toOrganizerVm(dto: AuctionShowResponseDto): AuctionOrganizerVm {
   };
 }
 
-/** Точки маршрута отсортированы по row_num; адреса и контакты гасит флаг DTO. */
 function toRoutePointsVm(dto: AuctionShowResponseDto, hideContacts: boolean): RoutePointVm[] {
   return [...dto.routes]
     .sort((a, b) => a.row_num - b.row_num)
@@ -338,7 +342,6 @@ function toYourBetVm(dto: AuctionShowResponseDto): AuctionYourBetVm {
 export function toAuctionDetailVm(dto: AuctionShowResponseDto): AuctionDetailVm {
   const { main, trading } = dto;
 
-  // Флаг приходит в двух местах контракта; скрываем историю, если он взведён хотя бы в одном.
   const hideBetsHistory = trading.hide_bets_history || dto.hide_bets_history === true;
   const hideContacts = trading.hide_points_address_and_contacts;
 
@@ -375,7 +378,10 @@ export function toAuctionDetailVm(dto: AuctionShowResponseDto): AuctionDetailVm 
           email: contact.email ?? null,
         })),
     route,
-    cargo: toCargoVm(dto, points.find((point) => point.isLoading)?.cargoName ?? points[0]?.cargoName ?? ''),
+    cargo: toCargoVm(
+      dto,
+      points.find((point) => point.isLoading)?.cargoName ?? points[0]?.cargoName ?? '',
+    ),
     payment: toPaymentVm(dto),
     trading: toTradingVm(dto),
     price: toPriceVm(dto),
@@ -386,6 +392,9 @@ export function toAuctionDetailVm(dto: AuctionShowResponseDto): AuctionDetailVm 
       inn: organization.inn,
       isMain: organization.is_main,
     })),
-    assembly: { num: dto.assembly.num ?? null, date: dto.assembly.date ?? null },
+    assembly: {
+      num: dto.assembly.num ?? null,
+      date: dto.assembly.date ?? null,
+    },
   };
 }

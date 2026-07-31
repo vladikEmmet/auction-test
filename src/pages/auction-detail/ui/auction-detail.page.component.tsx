@@ -35,7 +35,7 @@ export function AuctionDetailPage() {
   const navigate = useNavigate({ from: '/auctions/$auctionUuid' });
 
   const query = useQuery(auctionDetailQuery(auctionUuid));
-  // Хук вызывается до ранних return: правило хуков не допускает условного вызова.
+
   const timeLeft = useTimeLeft(
     query.data?.status === 'Auction' ? query.data.trading.stopTime : null,
   );
@@ -77,15 +77,20 @@ export function AuctionDetailPage() {
   const auction = query.data;
   const action = getPrimaryAction({
     canSetBet: auction.restrictions.canSetBet,
-    // is_bidder остаётся true даже после отмены ставки — участнику доступна история торгов.
+
     isBidder: auction.isBidder,
-    yourBet: { hasBet: auction.your.hasBet, lastBet: auction.your.lastBetWithVat },
+    yourBet: {
+      hasBet: auction.your.hasBet,
+      lastBet: auction.your.lastBetWithVat,
+    },
     status: auction.status,
     isExpired: timeLeft.isExpired,
   });
 
   const showBets = () =>
-    void navigate({ search: (previous) => ({ ...previous, tab: 'bets' as const }) });
+    void navigate({
+      search: (previous) => ({ ...previous, tab: 'bets' as const }),
+    });
 
   return (
     <div className="space-y-4">
@@ -119,7 +124,7 @@ export function AuctionDetailPage() {
             ) : (
               <div className="flex flex-col items-end gap-1">
                 <Button disabled>{action.label}</Button>
-                {/* Причина выводится текстом: title у disabled-кнопки не читается скринридером. */}
+
                 <span className="text-xs text-muted-foreground">{action.reason}</span>
               </div>
             )}
@@ -147,7 +152,12 @@ export function AuctionDetailPage() {
       <Tabs
         value={tab}
         onValueChange={(value) =>
-          void navigate({ search: (previous) => ({ ...previous, tab: value as 'info' | 'bets' }) })
+          void navigate({
+            search: (previous) => ({
+              ...previous,
+              tab: value as 'info' | 'bets',
+            }),
+          })
         }
       >
         <TabsList>
@@ -180,7 +190,6 @@ export function AuctionDetailPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Роут ставки — дочерний: модалка открывается поверх этой страницы. */}
       <Outlet />
     </div>
   );

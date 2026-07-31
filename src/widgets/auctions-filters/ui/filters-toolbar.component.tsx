@@ -1,4 +1,4 @@
-import { SlidersHorizontalIcon } from "lucide-react";
+import { SlidersHorizontalIcon } from 'lucide-react';
 
 import {
   describeActiveFilters,
@@ -9,33 +9,28 @@ import {
   SORT_OPTIONS,
   useFiltersPanelStore,
   type AuctionsSearch,
-} from "@/features/filter-auctions";
-import { VatToggle } from "@/features/vat-display";
-import { Badge } from "@/shared/ui/badge.component";
-import { Button } from "@/shared/ui/button.component";
-import { Label } from "@/shared/ui/label.component";
+} from '@/features/filter-auctions';
+import { VatToggle } from '@/features/vat-display';
+import { Badge } from '@/shared/ui/badge.component';
+import { Button } from '@/shared/ui/button.component';
+import { Label } from '@/shared/ui/label.component';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/shared/ui/select.component";
-import { ActiveFilters } from "@/widgets/auctions-filters/ui/active-filters.component";
+} from '@/shared/ui/select.component';
+import { ActiveFilters } from '@/widgets/auctions-filters/ui/active-filters.component';
 
 type FiltersToolbarProps = {
   search: AuctionsSearch;
   onChange: (patch: Partial<AuctionsSearch>) => void;
   onReset: () => void;
-  /** Развёрнутая панель фильтров прокручена — показываем кнопку вызова выезжающей. */
+
   showFiltersButton: boolean;
 };
 
-/**
- * Строка управления списком. Пока развёрнутая панель фильтров на экране, здесь только
- * сортировка, размер страницы и чипсы. Как только панель уезжает вверх, строка прилипает
- * под шапкой (`top-14` = её высота) и получает кнопку вызова выезжающих фильтров.
- */
 export function FiltersToolbar({
   search,
   onChange,
@@ -69,9 +64,7 @@ export function FiltersToolbar({
           </Label>
           <Select
             value={search.sort}
-            onValueChange={(value) =>
-              onChange({ sort: parseSortOption(value), page: 1 })
-            }
+            onValueChange={(value) => onChange({ sort: parseSortOption(value), page: 1 })}
           >
             <SelectTrigger id="sort" className="h-8 w-40">
               <SelectValue />
@@ -92,11 +85,8 @@ export function FiltersToolbar({
           </Label>
           <Select
             value={String(search.per_page)}
-            onValueChange={(value) =>
-              onChange({ per_page: parsePerPage(value), page: 1 })
-            }
+            onValueChange={(value) => onChange({ per_page: parsePerPage(value), page: 1 })}
           >
-            {/* w-20: на текст остаётся ~32px — двузначные значения не режутся. */}
             <SelectTrigger id="per-page" className="h-8 w-20">
               <SelectValue />
             </SelectTrigger>
@@ -115,11 +105,7 @@ export function FiltersToolbar({
 
       {activeCount > 0 ? (
         <div className="mt-2">
-          <ActiveFilters
-            search={search}
-            onChange={onChange}
-            onReset={onReset}
-          />
+          <ActiveFilters search={search} onChange={onChange} onReset={onReset} />
         </div>
       ) : null}
     </div>

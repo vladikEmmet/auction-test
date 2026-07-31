@@ -16,11 +16,6 @@ import { parseAuctionsSearch, type AuctionsSearch } from '@/features/filter-auct
 
 export type RouterContext = { queryClient: QueryClient };
 
-/**
- * Страницы грузятся отдельными чанками: список тянет фильтры и карточки, деталка —
- * блоки описания и таблицу ставок. Ожидание чанка показывает Suspense в корневом layout,
- * а `defaultPreload: 'intent'` подгружает код заранее — по наведению на ссылку.
- */
 const AuctionsListPage = lazy(async () => ({
   default: (await import('@/pages/auctions-list')).AuctionsListPage,
 }));
@@ -49,11 +44,7 @@ const indexRoute = createRoute({
 const auctionsListRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/auctions',
-  /**
-   * Разбор search params с безопасными fallback-значениями — вся логика в фиче фильтров.
-   * Входной тип объявлен Partial: тогда ссылки на /auctions не обязаны передавать search,
-   * а недостающие параметры подставит парсер.
-   */
+
   validateSearch: (input: Partial<AuctionsSearch> & SearchSchemaInput): AuctionsSearch =>
     parseAuctionsSearch(input),
   component: AuctionsListPage,
@@ -73,7 +64,6 @@ const auctionDetailRoute = createRoute({
   component: AuctionDetailPage,
 });
 
-/** Дочерний роут: форма ставки рисуется модалкой поверх детальной страницы. */
 const auctionBetRoute = createRoute({
   getParentRoute: () => auctionDetailRoute,
   path: 'bet',

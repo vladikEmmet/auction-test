@@ -54,7 +54,12 @@ describe('toBetVm', () => {
         id: 2,
         price_with_vat: 28_000,
         price_no_vat: 23_333,
-        price_info: { price_with_vat: null, price_no_vat: null, payment_type: null, vat_rate: null },
+        price_info: {
+          price_with_vat: null,
+          price_no_vat: null,
+          payment_type: null,
+          vat_rate: null,
+        },
       }),
     );
     expect(withoutInfo.priceWithVat).toBe(28_000);
@@ -87,8 +92,18 @@ describe('toBetsSummaryVm', () => {
 
   it('перекрытой считает прошлую ставку организации, действующей — ту, у которой место', () => {
     const summary = toBetsSummaryVm([
-      mine({ id: 1, created_at: '2026-07-30T12:00:00', price_with_vat: 30_000, place: null }),
-      mine({ id: 2, created_at: '2026-07-30T12:05:00', price_with_vat: 29_000, place: 1 }),
+      mine({
+        id: 1,
+        created_at: '2026-07-30T12:00:00',
+        price_with_vat: 30_000,
+        place: null,
+      }),
+      mine({
+        id: 2,
+        created_at: '2026-07-30T12:05:00',
+        price_with_vat: 29_000,
+        place: 1,
+      }),
     ]);
 
     expect(byId(summary, 1)?.isSuperseded).toBe(true);
@@ -97,7 +112,6 @@ describe('toBetsSummaryVm', () => {
   });
 
   it('при скрытом рейтинге действующей считается последняя по времени ставка', () => {
-    // hide_places = true: сервер отдаёт place = null у всех ставок.
     const summary = toBetsSummaryVm([
       mine({ id: 1, created_at: '2026-07-30T12:00:00' }),
       mine({ id: 2, created_at: '2026-07-30T12:07:00' }),
@@ -148,7 +162,7 @@ describe('toBetsSummaryVm', () => {
 
     expect(byId(summary, 2)?.isSuperseded).toBe(false);
     expect(byId(summary, 2)?.cancelReason).toBe('Отозвана перевозчиком');
-    // Отменённая ставка не перекрывает действующую.
+
     expect(byId(summary, 1)?.isSuperseded).toBe(false);
     expect(summary.activeCount).toBe(1);
     expect(summary.rejectedCount).toBe(1);

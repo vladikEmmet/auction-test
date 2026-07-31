@@ -20,18 +20,32 @@ export type EdgeCase = {
   noContacts?: boolean;
 };
 
-export /**
- * Первые записи фиксируют edge cases схемы, чтобы их можно было открыть по прямой ссылке
- * и проверить руками. Остальные генерируются PRNG для наполнения списка и пагинации.
- */
-const EDGE_CASES: EdgeCase[] = [
-  // 1 — обычный аукцион на понижение с историей ставок, ставок пользователя нет.
-  { aucType: 'Down', status: 'Auction', statusMobile: 'NotParticipating', canSetBet: true, competitorBets: 3 },
-  // 2 — пользователь лидирует, доступно изменение ставки.
-  { aucType: 'Up', status: 'Auction', statusMobile: 'Leading', canSetBet: true, competitorBets: 2, ownBet: true },
-  // 3 — ставок нет вообще: empty state списка ставок.
-  { aucType: 'FixPrice', status: 'Auction', statusMobile: 'NotParticipating', canSetBet: true, competitorBets: 0 },
-  // 4 — история ставок скрыта организатором.
+export const EDGE_CASES: EdgeCase[] = [
+  {
+    aucType: 'Down',
+    status: 'Auction',
+    statusMobile: 'NotParticipating',
+    canSetBet: true,
+    competitorBets: 3,
+  },
+
+  {
+    aucType: 'Up',
+    status: 'Auction',
+    statusMobile: 'Leading',
+    canSetBet: true,
+    competitorBets: 2,
+    ownBet: true,
+  },
+
+  {
+    aucType: 'FixPrice',
+    status: 'Auction',
+    statusMobile: 'NotParticipating',
+    canSetBet: true,
+    competitorBets: 0,
+  },
+
   {
     aucType: 'Request',
     status: 'Auction',
@@ -40,7 +54,7 @@ const EDGE_CASES: EdgeCase[] = [
     hideBetsHistory: true,
     competitorBets: 2,
   },
-  // 5 — контакты и адреса скрыты, цена груза скрыта, пользователь перебит, ставка запрещена.
+
   {
     aucType: 'Down',
     status: 'DeterminateWinner',
@@ -52,7 +66,7 @@ const EDGE_CASES: EdgeCase[] = [
     ownBet: true,
     noContacts: true,
   },
-  // 6 — завершённый аукцион: есть победитель и отменённая ставка с причиной.
+
   {
     aucType: 'Down',
     status: 'Finished',
@@ -63,7 +77,7 @@ const EDGE_CASES: EdgeCase[] = [
     rejectedBet: true,
     winnerBet: true,
   },
-  // 7 — торги ещё не начались: в списке нет блоков price и your.
+
   {
     aucType: 'Down',
     status: 'Planning',
@@ -73,7 +87,7 @@ const EDGE_CASES: EdgeCase[] = [
     noPriceBlockInList: true,
     noYourBlockInList: true,
   },
-  // 8 — неизвестные enum-значения, скрытый рейтинг, нет требований к ТС, маршрут из 4 точек.
+
   {
     aucType: 'Unknown',
     status: 'Unknown',
@@ -84,7 +98,7 @@ const EDGE_CASES: EdgeCase[] = [
     noCarRequirements: true,
     multiPoint: true,
   },
-  // 9 — статус «на рассмотрении»: есть в детальном DTO, но отсутствует в списочном.
+
   {
     aucType: 'Request',
     status: 'WaitDeal',

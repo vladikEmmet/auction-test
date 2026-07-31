@@ -16,10 +16,6 @@ type MultiSelectProps<T extends string> = {
   id?: string;
 };
 
-/**
- * Мультивыбор на popover + чекбоксы: Radix Select не поддерживает множественный выбор,
- * а нативный <select multiple> неудобен на мобильных.
- */
 export function MultiSelect<T extends string>({
   options,
   value,
@@ -36,9 +32,7 @@ export function MultiSelect<T extends string>({
     .map((option) => option.label);
 
   const toggle = (option: T) => {
-    onChange(
-      value.includes(option) ? value.filter((item) => item !== option) : [...value, option],
-    );
+    onChange(value.includes(option) ? value.filter((item) => item !== option) : [...value, option]);
   };
 
   return (
@@ -53,7 +47,12 @@ export function MultiSelect<T extends string>({
             className,
           )}
         >
-          <span className={cn('truncate text-left', selectedLabels.length === 0 && 'text-muted-foreground')}>
+          <span
+            className={cn(
+              'truncate text-left',
+              selectedLabels.length === 0 && 'text-muted-foreground',
+            )}
+          >
             {selectedLabels.length === 0
               ? placeholder
               : selectedLabels.length <= 2

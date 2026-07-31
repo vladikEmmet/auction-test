@@ -4,7 +4,6 @@ import { persist } from 'zustand/middleware';
 export type PriceMode = 'with_vat' | 'no_vat';
 
 type VatDisplayState = {
-  /** Режим показа цен: влияет только на отображение, запросы не меняет. */
   mode: PriceMode;
   setMode: (mode: PriceMode) => void;
   toggle: () => void;
@@ -15,7 +14,10 @@ export const useVatDisplayStore = create<VatDisplayState>()(
     (set) => ({
       mode: 'with_vat',
       setMode: (mode) => set({ mode }),
-      toggle: () => set((state) => ({ mode: state.mode === 'with_vat' ? 'no_vat' : 'with_vat' })),
+      toggle: () =>
+        set((state) => ({
+          mode: state.mode === 'with_vat' ? 'no_vat' : 'with_vat',
+        })),
     }),
     { name: 'auctions:price-mode' },
   ),

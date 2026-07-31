@@ -14,7 +14,6 @@ import {
 import { currencyFromCode } from '@/shared/lib/format';
 
 export type AuctionCardVm = {
-  /** Роутинг идёт по order_uid: именно он подставляется в /auctions/{auctionUuid}. */
   uuid: string;
   id: number;
   cargoNum: string;
@@ -25,7 +24,7 @@ export type AuctionCardVm = {
   tradingStatus: ListTradingStatus;
   tradingStatusLabel: string;
   organizerName: string | null;
-  /** Буквенный код валюты из payment.currency_code — нужен форматтеру цен. */
+
   currency: string;
   route: {
     fromCity: string;
@@ -50,10 +49,7 @@ export type AuctionCardVm = {
     currentNoVat: number | null;
     start: number | null;
     perKm: number | null;
-    /**
-     * Шага ставки здесь нет: AuctionListItemTradingPrice состоит из start / current /
-     * current_no_vat. Он доступен только в детальном DTO — карточка его не показывает.
-     */
+
     measurementLabel: string;
   };
   bidMeasurementType: BidMeasurementType | null;

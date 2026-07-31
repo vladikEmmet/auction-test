@@ -11,10 +11,6 @@ type FiltersPanelProps = {
   onReset: () => void;
 };
 
-/**
- * Развёрнутая панель фильтров в начале страницы. Пока она на экране, компактная кнопка
- * в липкой строке не нужна — та появляется только когда панель прокручена (см. useOutOfView).
- */
 export function FiltersPanel({ search, onApply, onReset }: FiltersPanelProps) {
   const activeFilters = hasActiveFilters(search);
 

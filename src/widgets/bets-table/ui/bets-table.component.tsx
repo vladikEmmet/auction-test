@@ -33,7 +33,7 @@ import {
 type BetsTableProps = {
   auctionUuid: string;
   restrictions: AuctionRestrictions;
-  /** Валюта аукциона: в BetItem её нет, поэтому приходит из детального DTO. */
+
   currency: string;
 };
 
@@ -41,10 +41,7 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
   const [showCancelled, setShowCancelled] = useState(false);
   const [sort, setSort] = useState<BetSort>(DEFAULT_BET_SORT);
 
-  // История скрыта организатором — запрос не отправляем вовсе.
-  const query = useQuery(
-    betListQuery(auctionUuid, showCancelled, !restrictions.hideBetsHistory),
-  );
+  const query = useQuery(betListQuery(auctionUuid, showCancelled, !restrictions.hideBetsHistory));
 
   if (restrictions.hideBetsHistory) {
     return (
@@ -91,7 +88,10 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
   const bets = sortBets(summary.bets, sort);
 
   const sortableHead = (field: BetSortField, label: string, align?: 'right') => (
-    <TableHead className={align === 'right' ? 'text-right' : undefined} aria-sort={ariaSort(sort, field)}>
+    <TableHead
+      className={align === 'right' ? 'text-right' : undefined}
+      aria-sort={ariaSort(sort, field)}
+    >
       <button
         type="button"
         onClick={() => setSort((current) => toggleBetSort(current, field))}
@@ -143,7 +143,6 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
         />
       ) : (
         <>
-          {/* Desktop: таблица; mobile: карточки — на узком экране таблица нечитаема. */}
           <div className="hidden sm:block">
             <Table>
               <TableHeader>
@@ -188,7 +187,6 @@ export function BetsTable({ auctionUuid, restrictions, currency }: BetsTableProp
 
 type BetRowProps = { bet: BetVm; currency: string };
 
-/** Строка истории для desktop-таблицы. */
 function BetRow({ bet, currency }: BetRowProps) {
   return (
     <TableRow className={cn((bet.isRejected || bet.isSuperseded) && 'opacity-60')}>
@@ -222,7 +220,6 @@ function BetRow({ bet, currency }: BetRowProps) {
   );
 }
 
-/** Та же ставка карточкой: на узком экране таблица нечитаема. */
 function BetCard({ bet, currency }: BetRowProps) {
   return (
     <li
@@ -256,7 +253,6 @@ function BetCard({ bet, currency }: BetRowProps) {
   );
 }
 
-/** Значение aria-sort для заголовка таблицы: озвучивает текущую сортировку. */
 function ariaSort(sort: BetSort, field: BetSortField): 'ascending' | 'descending' | 'none' {
   if (sort.field !== field) return 'none';
   return sort.direction === 'asc' ? 'ascending' : 'descending';

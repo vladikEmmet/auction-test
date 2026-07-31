@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 
 type FiltersPanelState = {
-  /** На мобильных фильтры скрыты за кнопкой; на desktop панель всегда развёрнута. */
   isOpen: boolean;
   open: () => void;
   close: () => void;

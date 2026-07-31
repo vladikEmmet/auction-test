@@ -18,10 +18,6 @@ export function fetchBets(
   });
 }
 
-/**
- * Схема не типизирует тело успешного ответа на POST /bets («проксируется от upstream»),
- * поэтому разбираем его как unknown: клиент опирается только на статус ответа.
- */
 export function setBet(auctionUuid: string, body: SetBetRequestDto): Promise<unknown> {
   return apiRequest(`/auctions/${auctionUuid}/bets`, z.unknown(), {
     method: 'POST',

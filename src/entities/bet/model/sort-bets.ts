@@ -16,12 +16,10 @@ function compare(a: BetVm, b: BetVm, field: BetSortField): number {
       return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     case 'place':
     default:
-      // Ставки без места (отменённые или скрытый рейтинг) всегда уходят вниз.
       return (a.place ?? Number.POSITIVE_INFINITY) - (b.place ?? Number.POSITIVE_INFINITY);
   }
 }
 
-/** Стабильная сортировка: при равных значениях порядок задаёт id ставки. */
 export function sortBets(bets: readonly BetVm[], sort: BetSort): BetVm[] {
   const sign = sort.direction === 'asc' ? 1 : -1;
 
@@ -31,7 +29,6 @@ export function sortBets(bets: readonly BetVm[], sort: BetSort): BetVm[] {
   });
 }
 
-/** Клик по той же колонке переворачивает направление, по новой — начинает с возрастания. */
 export function toggleBetSort(current: BetSort, field: BetSortField): BetSort {
   if (current.field !== field) return { field, direction: 'asc' };
   return { field, direction: current.direction === 'asc' ? 'desc' : 'asc' };

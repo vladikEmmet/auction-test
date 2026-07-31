@@ -5,7 +5,6 @@ import { Badge } from '@/shared/ui/badge.component';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.component';
 import { FieldList } from '@/shared/ui/field-list.component';
 
-/** Блок цен и состояния собственной ставки. */
 export function AuctionPriceBlock({ auction }: { auction: AuctionDetailVm }) {
   const mode = useVatDisplayStore((state) => state.mode);
   const noVat = mode === 'no_vat';
@@ -31,7 +30,10 @@ export function AuctionPriceBlock({ auction }: { auction: AuctionDetailVm }) {
           <Metric label="Шаг ставки" value={money(step)} />
           <Metric
             label={`За км (${auction.trading.measurementLabel || 'за рейс'})`}
-            value={formatMoney(auction.price.perKm, { currency, precise: true })}
+            value={formatMoney(auction.price.perKm, {
+              currency,
+              precise: true,
+            })}
           />
         </div>
 

@@ -10,7 +10,6 @@ import {
 import { API_BASE_URL } from '@/shared/config/env';
 import { getAuction, getBets, listAuctions, placeBet } from '@/shared/api/msw/store';
 
-/** Задержка, чтобы skeleton-состояния были видимы при ручной проверке; в тестах отключена. */
 const LATENCY_MS = import.meta.env.MODE === 'test' ? { min: 0, max: 0 } : { min: 180, max: 520 };
 
 const PROBLEM_HEADERS = { 'Content-Type': 'application/problem+json' };
@@ -65,7 +64,6 @@ export const handlers = [
     const perPage = filters.per_page ?? 20;
     const page = filters.page ?? 1;
 
-    // Границы пагинации проверяются как на реальном сервисе (см. пример ValidationError).
     const errors: ValidationErrorDto[] = [];
     if (perPage < 1 || perPage > 100) {
       errors.push({
@@ -75,7 +73,11 @@ export const handlers = [
       });
     }
     if (page < 1) {
-      errors.push({ field: 'page', message: 'Значение должно быть не меньше 1.', code: 'min_value' });
+      errors.push({
+        field: 'page',
+        message: 'Значение должно быть не меньше 1.',
+        code: 'min_value',
+      });
     }
     if (errors.length > 0) return validationProblem(errors);
 
@@ -109,7 +111,11 @@ export const handlers = [
 
     if (!parsed.success) {
       return validationProblem([
-        { field: 'price', message: 'Цена ставки обязательна и должна быть числом.', code: 'invalid' },
+        {
+          field: 'price',
+          message: 'Цена ставки обязательна и должна быть числом.',
+          code: 'invalid',
+        },
       ]);
     }
 
@@ -117,8 +123,6 @@ export const handlers = [
     if (!result) return notFound('Аукцион не найден.');
     if (!result.ok) return validationProblem(result.errors);
 
-    // Схема не типизирует тело успешного ответа («проксируется от upstream»),
-    // поэтому возвращаем созданную ставку — клиент на неё не опирается.
     return HttpResponse.json(result.bet, { status: 200 });
   }),
 ];

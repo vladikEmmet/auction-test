@@ -1,7 +1,4 @@
 @import 'tailwindcss';
-
-/* Тема переключается классом .dark на <html>. Компоненты пользуются только семантическими
-   токенами, поэтому вся палитра меняется этим блоком значений — без dark:-классов. */
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -30,12 +27,10 @@
   --border: oklch(0.91 0.008 260);
   --input: oklch(0.91 0.008 260);
   --ring: oklch(0.51 0.16 258);
-  /* Подложка модалок: цвет с альфой внутри, чтобы в тёмной теме не светлеть. */
   --overlay: oklch(0.21 0.02 260 / 45%);
 }
 
 .dark {
-  /* color-scheme красит нативные контролы: календарь у input[type=date], скроллбары. */
   color-scheme: dark;
   --background: oklch(0.17 0.012 260);
   --foreground: oklch(0.95 0.008 250);
@@ -109,8 +104,6 @@
       ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
       sans-serif;
   }
-
-  /* Числовые значения (цены, веса) выравниваем табличными цифрами. */
   .tabular {
     font-variant-numeric: tabular-nums;
   }

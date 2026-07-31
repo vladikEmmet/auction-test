@@ -8,7 +8,12 @@ import type {
 } from '@/shared/api/contracts';
 import { CURRENT_USER } from '@/shared/config/env';
 import { roundMoney } from '@/shared/lib/bet-rules';
-import { BODY_TYPES, CARGO_NAMES, ORGANIZATIONS, PAYMENT_FORMS } from '@/shared/api/msw/dictionaries';
+import {
+  BODY_TYPES,
+  CARGO_NAMES,
+  ORGANIZATIONS,
+  PAYMENT_FORMS,
+} from '@/shared/api/msw/dictionaries';
 import { CITY_DICTIONARY } from '@/shared/config/cities';
 import type { AuctionRecord } from '@/shared/api/msw/db';
 import { recalculatePlaces } from '@/shared/api/msw/ranking';
@@ -25,7 +30,6 @@ import { apiDate, DAY, HOUR, mulberry32, pick, uuidFor } from '@/shared/api/msw/
 
 const TOTAL_AUCTIONS = 57;
 
-/** Точки маршрута: сначала все погрузки, затем все выгрузки, нумерация сквозная. */
 function buildRoutes(params: {
   pointCount: number;
   loadCityIndex: number;
@@ -63,7 +67,6 @@ function buildRoutes(params: {
   return routes;
 }
 
-/** Груз и требования к ТС: часть значений зависит от типа кузова и edge case. */
 function buildCargo(params: {
   index: number;
   bodyType: string;
@@ -106,11 +109,17 @@ function buildCargo(params: {
     },
     car: noCarRequirements
       ? null
-      : { type: 'Тягач', weight: 20, volume: 82, width: 2.45, length: 13.6, height: 2.7 },
+      : {
+          type: 'Тягач',
+          weight: 20,
+          volume: 82,
+          width: 2.45,
+          length: 13.6,
+          height: 2.7,
+        },
   };
 }
 
-/** Параметры торгов: цены, флаги видимости и состояние ставки пользователя. */
 function buildTrading(params: {
   index: number;
   edge: EdgeCase | undefined;
@@ -238,8 +247,10 @@ function buildRecord(index: number, now: Date, random: () => number): AuctionRec
 
   const startPrice = 30_000 + Math.floor(random() * 40) * 2_500;
   const step = 500;
-  const competitorBets = edge?.competitorBets ?? (random() > 0.4 ? Math.floor(random() * 3) + 1 : 0);
-  const ownBet = edge?.ownBet ?? ['Leading', 'Losing', 'Winner', 'Confirmed'].includes(statusMobile);
+  const competitorBets =
+    edge?.competitorBets ?? (random() > 0.4 ? Math.floor(random() * 3) + 1 : 0);
+  const ownBet =
+    edge?.ownBet ?? ['Leading', 'Losing', 'Winner', 'Confirmed'].includes(statusMobile);
 
   const bets = buildBets({
     auctionId: 1000 + index,
@@ -390,12 +401,10 @@ function buildRecord(index: number, now: Date, random: () => number): AuctionRec
     },
   };
 
-  // Места считаются той же функцией, что и после ставки: иначе в сиде рейтинг пустой.
   recalculatePlaces(record);
   return record;
 }
 
-/** Собирает набор аукционов. `now` фиксируется в тестах для воспроизводимости. */
 export function createSeed(now: Date = new Date(), seed = 20260730): AuctionRecord[] {
   const random = mulberry32(seed);
   return Array.from({ length: TOTAL_AUCTIONS }, (_, index) => buildRecord(index, now, random));

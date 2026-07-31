@@ -6,10 +6,9 @@ import {
 import type { AuctionsSearch } from '@/features/filter-auctions/model/search-params';
 
 export type ActiveFilterChip = {
-  /** Стабильный ключ для React и для тестов. */
   id: string;
   label: string;
-  /** Патч, снимающий именно этот фильтр; страница всегда сбрасывается на первую. */
+
   patch: Partial<AuctionsSearch>;
 };
 
@@ -18,16 +17,11 @@ function formatDate(value: string): string {
   return `${day}.${month}.${year}`;
 }
 
-/** Снимает одно значение из массива, а пустой массив превращает в «фильтр не задан». */
 function withoutValue<T extends string>(values: readonly T[], value: T): T[] | undefined {
   const next = values.filter((item) => item !== value);
   return next.length > 0 ? next : undefined;
 }
 
-/**
- * Описывает применённые фильтры для чипсов над списком. Чистая функция: возвращает
- * подписи и патчи, не зная ничего про React и роутер.
- */
 export function describeActiveFilters(search: AuctionsSearch): ActiveFilterChip[] {
   const chips: ActiveFilterChip[] = [];
   const reset = { page: 1 as const };
@@ -44,7 +38,10 @@ export function describeActiveFilters(search: AuctionsSearch): ActiveFilterChip[
     chips.push({
       id: `statuses:${status}`,
       label: AUCTION_STATUS_LABELS[status],
-      patch: { ...reset, statuses: withoutValue(search.statuses ?? [], status) },
+      patch: {
+        ...reset,
+        statuses: withoutValue(search.statuses ?? [], status),
+      },
     });
   }
 

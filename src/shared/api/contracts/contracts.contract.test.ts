@@ -74,14 +74,12 @@ type OpenApiSchema = {
   properties?: Record<string, OpenApiProperty>;
 };
 
-/** Схема читается с диска: она источник правды и не должна попадать в бандл приложения. */
 const openapi = JSON.parse(
   readFileSync(resolve(process.cwd(), 'openapi/openapi.auctions.v0.json'), 'utf8'),
 ) as { components: { schemas: Record<string, OpenApiSchema> } };
 
 const schemas = openapi.components.schemas;
 
-/** Пары «схема из OpenAPI ↔ Zod-схема в коде». */
 const OBJECT_CONTRACTS: Array<[string, z.ZodObject]> = [
   ['AuctionListRequest', auctionListRequestSchema],
   ['AuctionListResponseBase', auctionListResponseSchema],
@@ -136,7 +134,6 @@ const ENUM_CONTRACTS: Array<[string, readonly string[]]> = [
   ['PaymentDelayType', PAYMENT_DELAY_TYPES],
 ];
 
-/** Поле считается nullable, если стоит флаг либо в примере явно указан null. */
 function isNullableInSchema(property: OpenApiProperty): boolean {
   return property.nullable === true || property.example === null;
 }
@@ -154,7 +151,9 @@ describe('контракт enum-значений', () => {
 
   it('фильтр auc_type не принимает Unknown', () => {
     const filterAucType = schemas.AuctionListRequest?.properties?.auc_type;
-    expect([...FILTER_AUCTION_TYPES].sort()).toEqual([...(filterAucType?.items?.enum ?? [])].sort());
+    expect([...FILTER_AUCTION_TYPES].sort()).toEqual(
+      [...(filterAucType?.items?.enum ?? [])].sort(),
+    );
   });
 
   it('фильтр status использует полный набор торговых статусов', () => {
@@ -196,7 +195,10 @@ describe('контракт эндпоинтов', () => {
   });
 
   it('ставка ставится методом POST, список ставок — GET', () => {
-    expect(Object.keys(paths['/auctions/{auctionUuid}/bets'] ?? {}).sort()).toEqual(['get', 'post']);
+    expect(Object.keys(paths['/auctions/{auctionUuid}/bets'] ?? {}).sort()).toEqual([
+      'get',
+      'post',
+    ]);
     expect(Object.keys(paths['/auctions/list'] ?? {})).toEqual(['post']);
   });
 });

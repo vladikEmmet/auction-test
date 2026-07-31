@@ -6,11 +6,6 @@ type StubInstance = {
 
 const instances = new Set<StubInstance>();
 
-/**
- * Заглушка IntersectionObserver для jsdom: в нём этого API нет, а от него зависит
- * появление липкой кнопки фильтров. По умолчанию наблюдаемые элементы считаются видимыми —
- * это соответствует состоянию «страница только открылась».
- */
 export function installIntersectionObserverStub(): void {
   class IntersectionObserverStub implements IntersectionObserver {
     readonly root = null;
@@ -44,10 +39,6 @@ export function installIntersectionObserverStub(): void {
   globalThis.IntersectionObserver = IntersectionObserverStub;
 }
 
-/**
- * Имитирует прокрутку: сообщает всем наблюдателям, ушли ли элементы из области видимости.
- * Вызывать внутри `act`, потому что коллбэк меняет состояние React.
- */
 export function setObservedElementsVisible(isIntersecting: boolean): void {
   for (const instance of instances) {
     const entries = [...instance.elements].map(

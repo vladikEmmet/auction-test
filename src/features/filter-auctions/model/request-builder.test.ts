@@ -42,7 +42,10 @@ describe('buildListRequest', () => {
   });
 
   it('переводит даты в ISO 8601 со смещением', () => {
-    const request = build({ load_date_from: '2026-05-26', load_date_to: '2026-05-28' });
+    const request = build({
+      load_date_from: '2026-05-26',
+      load_date_to: '2026-05-28',
+    });
     expect(request.load_date_from).toBe('2026-05-26T00:00:00+03:00');
     expect(request.load_date_to).toBe('2026-05-28T23:59:59+03:00');
   });
@@ -50,8 +53,12 @@ describe('buildListRequest', () => {
   it('раскладывает сортировку в поля sort / is_oldest', () => {
     expect(build({ sort: 'oldest' })).toMatchObject({ is_oldest: true });
     expect(build({ sort: 'price_asc' }).sort).toEqual({ current_price: 'asc' });
-    expect(build({ sort: 'per_km_desc' }).sort).toEqual({ price_per_km: 'desc' });
-    expect(build({ sort: 'start_time_asc' }).sort).toEqual({ start_time: 'asc' });
+    expect(build({ sort: 'per_km_desc' }).sort).toEqual({
+      price_per_km: 'desc',
+    });
+    expect(build({ sort: 'start_time_asc' }).sort).toEqual({
+      start_time: 'asc',
+    });
   });
 
   it('переносит цены в поля current_price_from / current_price_to', () => {
@@ -61,7 +68,9 @@ describe('buildListRequest', () => {
   });
 
   it('отправляет булевы фильтры только когда они включены', () => {
-    expect(build({ is_available: true, is_bidder: false })).toMatchObject({ is_available: true });
+    expect(build({ is_available: true, is_bidder: false })).toMatchObject({
+      is_available: true,
+    });
     expect(build({ is_available: true, is_bidder: false }).is_bidder).toBeUndefined();
   });
 

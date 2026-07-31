@@ -1,14 +1,9 @@
-import type {
-  AuctionListItemDto,
-  ListTradingStatus,
-  TradingStatus,
-} from '@/shared/api/contracts';
+import type { AuctionListItemDto, ListTradingStatus, TradingStatus } from '@/shared/api/contracts';
 import { LIST_TRADING_STATUSES } from '@/shared/api/contracts';
 import { roundMoney } from '@/shared/lib/bet-rules';
 import type { AuctionRecord } from '@/shared/api/msw/db';
 import { withoutVat } from '@/shared/api/msw/vat';
 
-/** Списочный контракт знает не все торговые статусы — предикат сужает тип без каста. */
 function isListTradingStatus(status: TradingStatus): status is ListTradingStatus {
   return LIST_TRADING_STATUSES.some((known) => known === status);
 }
@@ -119,7 +114,7 @@ export function toListItem(record: AuctionRecord): AuctionListItemDto {
       your: list.hasYourBlock
         ? {
             bet: detail.trading.your.bet,
-            // В списке доступно одно поле: показываем цену с НДС — как в примере схемы.
+
             last_bet: detail.trading.your.last_bet_with_vat ?? detail.trading.your.last_bet ?? null,
           }
         : null,

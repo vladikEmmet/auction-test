@@ -32,7 +32,6 @@ type BetFormProps = {
 };
 
 export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
-  // Правила дешёвые и чистые — считаем на каждый рендер, без useMemo и его зависимостей.
   const constraints = getBetConstraints({
     aucType: auction.aucType,
     canSetBet: auction.restrictions.canSetBet,
@@ -47,7 +46,6 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
   const mutation = useSetBetMutation(auction.uuid);
   const timeLeft = useTimeLeft(auction.status === 'Auction' ? auction.trading.stopTime : null);
 
-  // Ставку НДС выводим из пары цен DTO, а не зашиваем 20 %.
   const vatRatio = vatRatioFromPrices(auction.price.current, auction.price.currentNoVat);
 
   const form = useForm<BetFormInput, unknown, BetFormOutput>({
@@ -66,13 +64,11 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
     formState: { errors, isSubmitting },
   } = form;
 
-  // useWatch вместо watch(): подписка через control безопасна для React Compiler.
   const rawPrice = useWatch({ control, name: 'price' });
   const parsedPrice = parsePriceInput(rawPrice ?? '');
   const hasValidPrice = Number.isFinite(parsedPrice) && parsedPrice > 0;
   const step = auction.price.step;
 
-  /** Шаг вводится кнопками: набирать «29 500» руками на телефоне неудобно. */
   const shiftByStep = (direction: 1 | -1) => {
     if (step == null) return;
 
@@ -80,7 +76,10 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
     const next = roundMoney(base + direction * step);
     if (next <= 0) return;
 
-    setValue('price', String(next), { shouldValidate: true, shouldDirty: true });
+    setValue('price', String(next), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   const disabled = !auction.restrictions.canSetBet;
@@ -93,7 +92,6 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
           <>
             {formatMoney(price, { currency })} — аукцион №{auction.cargoNum}
             <br />
-            {/* Ограничение демо повторяется здесь: в момент ставки оно и важно. */}
             <span className="text-muted-foreground">
               Демо-данные живут до перезагрузки страницы.
             </span>
@@ -103,7 +101,6 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
       onSuccess?.();
     } catch (error) {
       if (isApiError(error) && error.isValidation) {
-        // 422: раскладываем ошибки по полям, неизвестные поля — в общий алерт формы.
         const fieldErrors = error.errors.filter((item) => item.field === 'price');
         const otherErrors = error.errors.filter((item) => item.field !== 'price');
 
@@ -158,7 +155,8 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
     <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
       <div className="grid gap-2">
         <Label htmlFor="bet-price">
-          Ваша цена, ₽ {auction.trading.measurementLabel ? `(${auction.trading.measurementLabel})` : ''}
+          Ваша цена, ₽{' '}
+          {auction.trading.measurementLabel ? `(${auction.trading.measurementLabel})` : ''}
         </Label>
         <div className="flex items-center gap-2">
           {step != null ? (
@@ -199,7 +197,12 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
 
         {vatRatio != null && hasValidPrice ? (
           <p className="text-xs text-muted-foreground tabular">
-            ≈ {formatMoney(roundMoney(parsedPrice / vatRatio), { currency, precise: true })} без НДС
+            ≈{' '}
+            {formatMoney(roundMoney(parsedPrice / vatRatio), {
+              currency,
+              precise: true,
+            })}{' '}
+            без НДС
           </p>
         ) : null}
 

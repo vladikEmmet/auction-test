@@ -9,12 +9,6 @@ import {
   resetIntersectionObserverStub,
 } from '@/testing/intersection-observer';
 
-/**
- * Дефолтный таймаут findBy/waitFor — 1 секунда. С ленивой загрузкой страниц первому
- * рендеру нужно ещё и разрешить динамический импорт чанка, и под нагрузкой (параллельные
- * tsc/eslint/build на той же машине) секунды иногда не хватало — тесты падали хаотично.
- * Ожидание всё равно завершается сразу после выполнения условия, запас на время не влияет.
- */
 configure({ asyncUtilTimeout: 5000 });
 
 afterEach(() => {
@@ -26,10 +20,6 @@ beforeEach(() => {
   installIntersectionObserverStub();
 });
 
-/**
- * jsdom не реализует API, на которые опираются примитивы Radix (Select, Popover, Dialog).
- * Без этих заглушек компоненты падают при монтировании, хотя в браузере работают.
- */
 if (!('ResizeObserver' in globalThis)) {
   globalThis.ResizeObserver = class ResizeObserver {
     observe() {}
@@ -66,7 +56,10 @@ if (!('DOMRect' in globalThis)) {
     }
   }
 
-  Object.defineProperty(globalThis, 'DOMRect', { writable: true, value: DOMRectStub });
+  Object.defineProperty(globalThis, 'DOMRect', {
+    writable: true,
+    value: DOMRectStub,
+  });
 }
 
 if (typeof Element !== 'undefined') {

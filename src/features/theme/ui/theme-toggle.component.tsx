@@ -10,18 +10,11 @@ const ICONS = {
   dark: MoonIcon,
 } as const;
 
-/**
- * Выбор темы тремя кнопками, а не одной цикличной: по одинокой иконке монитора нельзя
- * догадаться, что это переключатель темы, а первый клик в цикле часто не даёт видимого
- * эффекта. Здесь видно и все варианты, и активный, а нужный выбирается одним нажатием.
- */
 export function ThemeToggle() {
   const { preference, setPreference } = useTheme();
 
   return (
     <div className="flex items-center gap-2">
-      {/* Видимая подпись скрывается на мобильных, поэтому имя группы задаётся aria-label:
-          так оно одинаково на всех разрешениях. */}
       <span className="hidden text-xs text-muted-foreground sm:inline" aria-hidden>
         Тема
       </span>

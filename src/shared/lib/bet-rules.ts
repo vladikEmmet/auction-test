@@ -1,17 +1,15 @@
-import type { AuctionShowResponseDto, AuctionType, ValidationErrorDto } from '@/shared/api/contracts';
-
-/**
- * Правила ставки живут в shared, потому что их используют оба конца: форма на клиенте
- * и MSW-хендлер, играющий роль сервера. Единственный источник правды здесь гарантирует,
- * что клиентская валидация и 422 от «сервера» не разъезжаются.
- */
+import type {
+  AuctionShowResponseDto,
+  AuctionType,
+  ValidationErrorDto,
+} from '@/shared/api/contracts';
 
 export type BetDirection = 'down' | 'up' | 'fixed' | 'free';
 
 export type BetConstraints = {
   canSetBet: boolean;
   direction: BetDirection;
-  /** Цена, от которой считается шаг: available, иначе current. */
+
   reference: number | null;
   min: number | null;
   max: number | null;
@@ -20,7 +18,6 @@ export type BetConstraints = {
 
 const CENTS = 100;
 
-/** Сравнение денег в копейках: избавляет от накопления ошибки float. */
 function toCents(value: number): number {
   return Math.round(value * CENTS);
 }
@@ -48,10 +45,6 @@ export type BetConstraintsInput = {
   step: number | null;
 };
 
-/**
- * Ядро правил работает с плоским объектом, чтобы им могли пользоваться и DTO (MSW),
- * и ViewModel (форма) без обратной конвертации.
- */
 export function getBetConstraints(input: BetConstraintsInput): BetConstraints {
   return {
     canSetBet: input.canSetBet,
@@ -76,14 +69,7 @@ export function getBetConstraintsFromDto(detail: AuctionShowResponseDto): BetCon
   });
 }
 
-/**
- * Возвращает список нарушений в формате ValidationError из схемы: тот же формат
- * отдаёт MSW в 422, поэтому форма обрабатывает оба источника одинаково.
- */
-export function validateBetPrice(
-  price: number,
-  constraints: BetConstraints,
-): ValidationErrorDto[] {
+export function validateBetPrice(price: number, constraints: BetConstraints): ValidationErrorDto[] {
   const errors: ValidationErrorDto[] = [];
   const add = (code: string, message: string) => errors.push({ field: 'price', message, code });
 
@@ -126,7 +112,10 @@ export function validateBetPrice(
       const stepCents = toCents(step);
       const deltaCents = Math.abs(priceCents - referenceCents);
       if (stepCents > 0 && deltaCents % stepCents !== 0) {
-        add('step', `Цена должна отличаться от ${formatPlain(reference)} ₽ на шаг ${formatPlain(step)} ₽.`);
+        add(
+          'step',
+          `Цена должна отличаться от ${formatPlain(reference)} ₽ на шаг ${formatPlain(step)} ₽.`,
+        );
       }
     }
   }
@@ -134,7 +123,6 @@ export function validateBetPrice(
   return errors;
 }
 
-/** Ближайшая корректная ставка — подставляется в форму как значение по умолчанию. */
 export function suggestBetPrice(constraints: BetConstraints): number | null {
   const { reference, step, direction, min, max } = constraints;
   if (reference == null) return min ?? null;
@@ -159,12 +147,6 @@ function formatPlain(value: number): string {
   return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(value);
 }
 
-/**
- * Коэффициент НДС, выведенный из пары цен DTO (`current` / `current_no_vat`).
- * Ставку налога не зашиваем: она задаётся на уровне организации
- * (`AdmittedOrganization.current_vat_rate`) и может отличаться от 20 %.
- * null — когда вывести не из чего; тогда превью «без НДС» просто не показывается.
- */
 export function vatRatioFromPrices(
   withVat: number | null | undefined,
   noVat: number | null | undefined,
@@ -174,11 +156,10 @@ export function vatRatioFromPrices(
   if (noVat <= 0 || withVat <= 0) return null;
 
   const ratio = withVat / noVat;
-  // Санитарная проверка: осмысленная ставка НДС лежит между 0 % и 100 %.
+
   return ratio >= 1 && ratio <= 2 ? ratio : null;
 }
 
-/** Лучше ли ставка `candidate`, чем `current`, с точки зрения типа аукциона. */
 export function isBetterBet(candidate: number, current: number, aucType: AuctionType): boolean {
   return directionByAuctionType(aucType) === 'up' ? candidate > current : candidate < current;
 }

@@ -11,25 +11,21 @@ export type PrimaryActionInput = {
   isBidder: AuctionCardVm['isBidder'];
   yourBet: AuctionCardVm['yourBet'];
   status: AuctionCardVm['status'];
-  /**
-   * Время торгов истекло по часам клиента. Флаг приходит снаружи: серверный DTO
-   * обновляет `can_set_bet` только при следующем запросе, а кнопка должна погаснуть сразу.
-   */
+
   isExpired?: boolean;
 };
 
-/**
- * Основное действие карточки. Порядок проверок важен: истёкшее время бьёт ставку,
- * «изменить» приоритетнее «сделать», а «смотреть ставки» показывается только тем,
- * кто уже участвовал в торгах.
- */
 export function getPrimaryAction(auction: PrimaryActionInput): PrimaryAction {
   const participated = auction.isBidder || auction.yourBet.hasBet;
 
   if (auction.canSetBet && auction.isExpired) {
     return participated
       ? { kind: 'view-bets', label: 'Смотреть ставки' }
-      : { kind: 'disabled', label: 'Ставка недоступна', reason: 'Время торгов истекло' };
+      : {
+          kind: 'disabled',
+          label: 'Ставка недоступна',
+          reason: 'Время торгов истекло',
+        };
   }
 
   if (auction.canSetBet) {

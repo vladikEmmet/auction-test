@@ -11,7 +11,6 @@ type StatePanelProps = {
   className?: string;
 };
 
-/** Универсальная панель для empty / error / «данные скрыты» состояний. */
 export function StatePanel({ icon: Icon, title, description, action, className }: StatePanelProps) {
   return (
     <div

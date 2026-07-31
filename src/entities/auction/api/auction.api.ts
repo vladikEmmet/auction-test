@@ -22,5 +22,7 @@ export function fetchAuction(
   auctionUuid: string,
   signal?: AbortSignal,
 ): Promise<AuctionShowResponseDto> {
-  return apiRequest(`/auctions/${auctionUuid}`, auctionShowResponseSchema, { signal });
+  return apiRequest(`/auctions/${auctionUuid}`, auctionShowResponseSchema, {
+    signal,
+  });
 }

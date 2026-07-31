@@ -1,15 +1,14 @@
 import { parseApiDate } from '@/shared/lib/format';
 
 export type TimeLeft = {
-  /** Миллисекунд до окончания; 0, если время вышло или дата неизвестна. */
   ms: number;
-  /** Торги закончились: дата в прошлом. */
+
   isExpired: boolean;
-  /** Дата не разобралась — таймер показывать нечему. */
+
   isUnknown: boolean;
-  /** Меньше пяти минут: повод подсветить. */
+
   isUrgent: boolean;
-  /** Подпись вида «1 ч 23 мин», «4 дн 2 ч», «43 сек». */
+
   label: string;
 };
 
@@ -35,10 +34,6 @@ const UNKNOWN: TimeLeft = {
   label: '—',
 };
 
-/**
- * Чистый расчёт остатка времени: `now` передаётся параметром, поэтому функция
- * тестируется без подмены системных часов.
- */
 export function getTimeLeft(target: string | null | undefined, now: Date | number): TimeLeft {
   const date = parseApiDate(target);
   if (!date) return UNKNOWN;
@@ -55,7 +50,6 @@ export function getTimeLeft(target: string | null | undefined, now: Date | numbe
   };
 }
 
-/** Две старшие единицы: точность до секунд нужна только на последней минуте. */
 export function formatTimeLeft(ms: number): string {
   if (ms <= 0) return 'время вышло';
 

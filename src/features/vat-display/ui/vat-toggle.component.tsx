@@ -2,7 +2,6 @@ import { useVatDisplayStore } from '@/features/vat-display/model/vat-display.sto
 import { Label } from '@/shared/ui/label.component';
 import { Switch } from '@/shared/ui/switch.component';
 
-/** Переключатель отображения цен: влияет только на UI, запросы не перезапускает. */
 export function VatToggle({ id = 'vat-mode' }: { id?: string }) {
   const mode = useVatDisplayStore((state) => state.mode);
   const toggle = useVatDisplayStore((state) => state.toggle);

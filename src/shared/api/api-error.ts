@@ -4,10 +4,6 @@ import {
   type ValidationErrorDto,
 } from '@/shared/api/contracts';
 
-/**
- * Единая ошибка API: и `ProblemDetail`, и `ValidationProblem` из схемы, и сетевой сбой
- * приводятся к одному типу, чтобы UI не разбирал форматы вручную.
- */
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
@@ -32,7 +28,6 @@ export class ApiError extends Error {
     this.errors = params.errors ?? [];
   }
 
-  /** 422 с разбором по полям — единственный случай, который форма раскладывает по инпутам. */
   get isValidation(): boolean {
     return this.status === 422;
   }
@@ -46,7 +41,6 @@ export function isApiError(error: unknown): error is ApiError {
   return error instanceof ApiError;
 }
 
-/** Разбирает тело ошибки: сначала как ValidationProblem, затем как ProblemDetail. */
 export function toApiError(status: number, body: unknown): ApiError {
   const validation = validationProblemSchema.safeParse(body);
   if (validation.success) {

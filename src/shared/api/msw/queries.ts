@@ -8,12 +8,15 @@ import { AUCTION_STATUS_CODES, TRADING_STATUS_CODES } from '@/shared/api/contrac
 import { findRecord, getRecords, type AuctionRecord } from '@/shared/api/msw/db';
 import { toListItem } from '@/shared/api/msw/projections';
 
-function matchesCity(record: AuctionRecord, city: string, opType: 'Loading' | 'Unloading'): boolean {
+function matchesCity(
+  record: AuctionRecord,
+  city: string,
+  opType: 'Loading' | 'Unloading',
+): boolean {
   const needle = city.trim().toLowerCase();
   if (!needle) return true;
   return record.detail.routes.some(
-    (point) =>
-      point.op_type === opType && point.location.city_name.toLowerCase().includes(needle),
+    (point) => point.op_type === opType && point.location.city_name.toLowerCase().includes(needle),
   );
 }
 
@@ -108,7 +111,8 @@ export function listAuctions(filters: AuctionListRequestDto): AuctionListRespons
     });
   } else {
     matched.sort((a, b) => {
-      const diff = new Date(a.detail.main.created_at).getTime() - new Date(b.detail.main.created_at).getTime();
+      const diff =
+        new Date(a.detail.main.created_at).getTime() - new Date(b.detail.main.created_at).getTime();
       return filters.is_oldest === true ? diff : -diff;
     });
   }
@@ -144,7 +148,7 @@ export function getBets(uuid: string, all: boolean): BetItemDto[] | undefined {
   const bets = all ? record.bets : record.bets.filter((bet) => !bet.is_rejected);
   return bets.map((bet) => ({
     ...bet,
-    // hide_places скрывает рейтинг, но не сами ставки.
+
     place: record.detail.trading.hide_places ? null : bet.place,
   }));
 }

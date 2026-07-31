@@ -18,7 +18,6 @@ export function DialogContent({
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-[2px]" />
       <DialogPrimitive.Content
         className={cn(
-          // На мобильных — полноэкранная карточка, на desktop — центрированная модалка.
           'fixed inset-0 z-50 flex w-full flex-col gap-4 overflow-y-auto bg-card p-5 shadow-lg',
           'sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[90vh] sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:border sm:border-border',
           className,
@@ -43,7 +42,10 @@ export function DialogHeader({ className, ...props }: React.ComponentProps<'div'
 
 export function DialogFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <div className={cn('flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)} {...props} />
+    <div
+      className={cn('flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)}
+      {...props}
+    />
   );
 }
 

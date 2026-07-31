@@ -32,12 +32,11 @@ async function readBody(response: Response): Promise<unknown> {
   }
 }
 
-/**
- * Разбор ответа схемой Zod. В dev расхождение с контрактом печатается в консоль,
- * но не роняет экран: реальный upstream может добавить поля или прислать null там,
- * где схема этого не обещала. В тестах и проде используются уже разобранные данные.
- */
-function parseWithContract<T extends z.ZodType>(schema: T, data: unknown, path: string): z.infer<T> {
+function parseWithContract<T extends z.ZodType>(
+  schema: T,
+  data: unknown,
+  path: string,
+): z.infer<T> {
   const result = schema.safeParse(data);
   if (result.success) return result.data;
 

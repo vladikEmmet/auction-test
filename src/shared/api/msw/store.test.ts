@@ -16,11 +16,10 @@ import { CURRENT_USER } from '@/shared/config/env';
 
 const NOW = new Date('2026-07-30T12:00:00');
 
-/** Аукцион на понижение с активными торгами и разрешённой ставкой. */
 const DOWN_AUCTION = uuidFor(0);
-/** Аукцион, в котором ставки запрещены. */
+
 const CLOSED_AUCTION = uuidFor(4);
-/** Завершённый аукцион с отменённой ставкой. */
+
 const FINISHED_AUCTION = uuidFor(5);
 
 beforeEach(() => {
@@ -31,7 +30,12 @@ describe('listAuctions', () => {
   it('отдаёт первую страницу с корректной мета-информацией', () => {
     const response = listAuctions({ page: 1, per_page: 10 });
     expect(response.data).toHaveLength(10);
-    expect(response.meta).toMatchObject({ current_page: 1, per_page: 10, from: 1, to: 10 });
+    expect(response.meta).toMatchObject({
+      current_page: 1,
+      per_page: 10,
+      from: 1,
+      to: 10,
+    });
     expect(response.meta.total).toBeGreaterThan(10);
   });
 
@@ -61,32 +65,41 @@ describe('listAuctions', () => {
     expect(filtered.data.every((item) => item.route.load.city === 'Москва')).toBe(true);
   });
 
-  /**
-   * Фильтрация и сортировка идут по реальной цене аукциона. Блок `trading.price`
-   * в списочном DTO бывает null (аукцион ещё не в торгах) — такие элементы участвуют
-   * в выборке, но цену не показывают, поэтому в проверках они исключаются.
-   */
   const visiblePrices = (items: AuctionListItemDto[]) =>
     items
       .map((item) => item.trading.price?.current)
       .filter((price): price is number => price != null);
 
   it('фильтрует по диапазону цены', () => {
-    const filtered = listAuctions({ current_price_from: 60_000, per_page: 100 });
+    const filtered = listAuctions({
+      current_price_from: 60_000,
+      per_page: 100,
+    });
     expect(filtered.data.length).toBeGreaterThan(0);
     expect(visiblePrices(filtered.data).every((price) => price >= 60_000)).toBe(true);
   });
 
   it('сортирует по текущей цене', () => {
-    const { data } = listAuctions({ sort: { current_price: 'asc' }, per_page: 100 });
+    const { data } = listAuctions({
+      sort: { current_price: 'asc' },
+      per_page: 100,
+    });
     const prices = visiblePrices(data);
     expect([...prices].sort((a, b) => a - b)).toEqual(prices);
   });
 
   it('пустая выборка возвращает нулевую мету, а не отрицательные индексы', () => {
-    const empty = listAuctions({ cargo_num: 'такого-номера-нет', per_page: 20 });
+    const empty = listAuctions({
+      cargo_num: 'такого-номера-нет',
+      per_page: 20,
+    });
     expect(empty.data).toEqual([]);
-    expect(empty.meta).toMatchObject({ total: 0, from: 0, to: 0, last_page: 1 });
+    expect(empty.meta).toMatchObject({
+      total: 0,
+      from: 0,
+      to: 0,
+      last_page: 1,
+    });
   });
 });
 
@@ -130,7 +143,6 @@ describe('места в сиде', () => {
       if (bets.length > 0 && bets.every((bet) => bet.place == null)) withoutPlaces.push(uuid);
     }
 
-    // Единственное исключение — восьмой аукцион сида с hide_places = true.
     expect(withoutPlaces).toEqual([uuidFor(7)]);
   });
 });
@@ -184,7 +196,6 @@ describe('placeBet', () => {
     expect(mine?.place).toBe(1);
     expect(mine?.price_no_vat).toBe(withoutVat(price));
 
-    // Места идут подряд с единицы и не дублируются.
     const places = bets.map((bet) => bet.place).filter((place): place is number => place != null);
     expect([...new Set(places)]).toHaveLength(places.length);
     expect(Math.min(...places)).toBe(1);

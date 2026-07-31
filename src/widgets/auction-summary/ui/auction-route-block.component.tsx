@@ -5,7 +5,6 @@ import { formatDateRange, formatEmpty } from '@/shared/lib/format';
 import { Badge } from '@/shared/ui/badge.component';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.component';
 
-/** Маршрут со всеми точками; адреса и контакты скрываются флагом из DTO. */
 export function AuctionRouteBlock({ auction }: { auction: AuctionDetailVm }) {
   const { points } = auction.route;
   const hidden = auction.restrictions.hidePointsAddressAndContacts;
@@ -32,7 +31,10 @@ export function AuctionRouteBlock({ auction }: { auction: AuctionDetailVm }) {
                 aria-hidden
               />
               {index < points.length - 1 ? (
-                <span className="absolute left-1.5 top-5 h-[calc(100%-0.5rem)] w-px bg-border" aria-hidden />
+                <span
+                  className="absolute left-1.5 top-5 h-[calc(100%-0.5rem)] w-px bg-border"
+                  aria-hidden
+                />
               ) : null}
 
               <div className="flex flex-wrap items-center gap-2">

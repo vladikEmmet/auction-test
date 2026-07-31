@@ -9,7 +9,11 @@ import {
 
 describe('parseAuctionsSearch', () => {
   it('подставляет значения по умолчанию для пустого URL', () => {
-    expect(parseAuctionsSearch({})).toEqual({ page: 1, per_page: DEFAULT_PER_PAGE, sort: 'newest' });
+    expect(parseAuctionsSearch({})).toEqual({
+      page: 1,
+      per_page: DEFAULT_PER_PAGE,
+      sort: 'newest',
+    });
   });
 
   it('переживает полностью мусорный вход', () => {
@@ -26,7 +30,11 @@ describe('parseAuctionsSearch', () => {
   });
 
   it('приводит числовые параметры из строк', () => {
-    const search = parseAuctionsSearch({ page: '3', per_page: '50', price_from: '1000.5' });
+    const search = parseAuctionsSearch({
+      page: '3',
+      per_page: '50',
+      price_from: '1000.5',
+    });
     expect(search.page).toBe(3);
     expect(search.per_page).toBe(50);
     expect(search.price_from).toBe(1000.5);
@@ -71,7 +79,6 @@ describe('parseAuctionsSearch', () => {
   });
 
   it('принимает числовой номер заявки из URL как строку', () => {
-    // Роутер разбирает ?cargo_num=99999999999 как number — фильтр не должен теряться.
     expect(parseAuctionsSearch({ cargo_num: 99_999_999_999 }).cargo_num).toBe('99999999999');
   });
 
@@ -89,8 +96,16 @@ describe('parseAuctionsSearch', () => {
   });
 
   it('один невалидный параметр не ломает остальные', () => {
-    const search = parseAuctionsSearch({ page: 'abc', load_city: 'Пермь', sort: 'price_asc' });
-    expect(search).toMatchObject({ page: 1, load_city: 'Пермь', sort: 'price_asc' });
+    const search = parseAuctionsSearch({
+      page: 'abc',
+      load_city: 'Пермь',
+      sort: 'price_asc',
+    });
+    expect(search).toMatchObject({
+      page: 1,
+      load_city: 'Пермь',
+      sort: 'price_asc',
+    });
   });
 });
 
@@ -107,6 +122,10 @@ describe('hasActiveFilters / clearFilters', () => {
       page: 4,
       load_city: 'Москва',
     });
-    expect(clearFilters(search)).toEqual({ page: 1, per_page: 50, sort: 'oldest' });
+    expect(clearFilters(search)).toEqual({
+      page: 1,
+      per_page: 50,
+      sort: 'oldest',
+    });
   });
 });

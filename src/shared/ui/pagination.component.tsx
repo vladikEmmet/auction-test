@@ -13,12 +13,13 @@ type PaginationProps = {
   className?: string;
 };
 
-/** Компактный набор страниц с многоточиями: 1 … 4 5 6 … 20. */
 function buildPages(page: number, lastPage: number): Array<number | 'gap'> {
   if (lastPage <= 7) return Array.from({ length: lastPage }, (_, index) => index + 1);
 
   const pages = new Set<number>([1, lastPage, page, page - 1, page + 1]);
-  const sorted = [...pages].filter((value) => value >= 1 && value <= lastPage).sort((a, b) => a - b);
+  const sorted = [...pages]
+    .filter((value) => value >= 1 && value <= lastPage)
+    .sort((a, b) => a - b);
 
   const result: Array<number | 'gap'> = [];
   let previous = 0;

@@ -2,7 +2,6 @@ import type { AuctionListRequestDto } from '@/shared/api/contracts';
 import { AUCTION_STATUS_CODES } from '@/shared/api/contracts';
 import type { AuctionsSearch, SortOption } from '@/features/filter-auctions/model/search-params';
 
-/** `+03:00` из смещения в минутах, которое отдаёт Date.getTimezoneOffset(). */
 function formatOffset(offsetMinutes: number): string {
   const sign = offsetMinutes > 0 ? '-' : '+';
   const absolute = Math.abs(offsetMinutes);
@@ -11,11 +10,6 @@ function formatOffset(offsetMinutes: number): string {
   return `${sign}${hours}:${minutes}`;
 }
 
-/**
- * Схема требует ISO 8601 со смещением (`pattern` в AuctionListRequest), а в URL лежит
- * только дата. `from` разворачивается в начало дня, `to` — в конец, иначе фильтр
- * «по 5 мая» отбрасывал бы все погрузки этого дня.
- */
 export function toIsoWithOffset(
   date: string,
   edge: 'start' | 'end',
@@ -37,10 +31,6 @@ const SORT_MAP: Record<SortOption, Pick<AuctionListRequestDto, 'sort' | 'is_olde
   start_time_asc: { sort: { start_time: 'asc' } },
 };
 
-/**
- * Собирает тело POST /auctions/list из состояния URL.
- * Пустые фильтры не отправляются: сервер не должен отличать «не задано» от «пустая строка».
- */
 export function buildListRequest(
   search: AuctionsSearch,
   options: { offsetMinutes?: number } = {},
@@ -55,7 +45,6 @@ export function buildListRequest(
   if (search.status?.length) request.status = search.status;
   if (search.auc_type?.length) request.auc_type = search.auc_type;
 
-  // Фильтр по статусу аукциона в API числовой — переводим читаемые ключи в коды.
   if (search.statuses?.length) {
     const codes = search.statuses
       .filter((status): status is keyof typeof AUCTION_STATUS_CODES => status !== 'Unknown')

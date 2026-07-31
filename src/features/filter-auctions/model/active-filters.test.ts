@@ -3,8 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { describeActiveFilters } from '@/features/filter-auctions/model/active-filters';
 import { parseAuctionsSearch } from '@/features/filter-auctions/model/search-params';
 
-const chips = (input: Record<string, unknown>) =>
-  describeActiveFilters(parseAuctionsSearch(input));
+const chips = (input: Record<string, unknown>) => describeActiveFilters(parseAuctionsSearch(input));
 
 describe('describeActiveFilters', () => {
   it('без фильтров чипсов нет', () => {

@@ -1,5 +1,5 @@
-import type * as React from "react";
-import { useId, useState } from "react";
+import type * as React from 'react';
+import { useId, useState } from 'react';
 
 import {
   AUCTION_STATUSES,
@@ -11,24 +11,23 @@ import {
   type AuctionStatus,
   type FilterAuctionType,
   type TradingStatus,
-} from "@/shared/api/contracts";
-import type { AuctionsSearch } from "@/features/filter-auctions";
-import { CITY_NAMES } from "@/shared/config/cities";
-import { cn } from "@/shared/lib/cn";
-import { Checkbox } from "@/shared/ui/checkbox.component";
-import { Input } from "@/shared/ui/input.component";
-import { Label } from "@/shared/ui/label.component";
-import { MultiSelect } from "@/shared/ui/multi-select.component";
+} from '@/shared/api/contracts';
+import type { AuctionsSearch } from '@/features/filter-auctions';
+import { CITY_NAMES } from '@/shared/config/cities';
+import { cn } from '@/shared/lib/cn';
+import { Checkbox } from '@/shared/ui/checkbox.component';
+import { Input } from '@/shared/ui/input.component';
+import { Label } from '@/shared/ui/label.component';
+import { MultiSelect } from '@/shared/ui/multi-select.component';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/shared/ui/select.component";
+} from '@/shared/ui/select.component';
 
-/** Radix Select не допускает пустую строку как значение — используем явный маркер. */
-const ANY_CITY = "__any__";
+const ANY_CITY = '__any__';
 
 type Draft = {
   cargo_num: string;
@@ -47,16 +46,16 @@ type Draft = {
 
 function toDraft(search: AuctionsSearch): Draft {
   return {
-    cargo_num: search.cargo_num ?? "",
+    cargo_num: search.cargo_num ?? '',
     status: [...(search.status ?? [])],
     statuses: [...(search.statuses ?? [])],
     auc_type: [...(search.auc_type ?? [])],
-    load_city: search.load_city ?? "",
-    unload_city: search.unload_city ?? "",
-    load_date_from: search.load_date_from ?? "",
-    load_date_to: search.load_date_to ?? "",
-    price_from: search.price_from == null ? "" : String(search.price_from),
-    price_to: search.price_to == null ? "" : String(search.price_to),
+    load_city: search.load_city ?? '',
+    unload_city: search.unload_city ?? '',
+    load_date_from: search.load_date_from ?? '',
+    load_date_to: search.load_date_to ?? '',
+    price_from: search.price_from == null ? '' : String(search.price_from),
+    price_to: search.price_to == null ? '' : String(search.price_to),
     is_available: search.is_available ?? false,
     is_bidder: search.is_bidder ?? false,
   };
@@ -67,8 +66,8 @@ function optional<T>(value: T[]): T[] | undefined {
 }
 
 function optionalNumber(value: string): number | undefined {
-  const parsed = Number(value.replace(",", "."));
-  return value.trim() === "" || !Number.isFinite(parsed) ? undefined : parsed;
+  const parsed = Number(value.replace(',', '.'));
+  return value.trim() === '' || !Number.isFinite(parsed) ? undefined : parsed;
 }
 
 function toSearchPatch(draft: Draft): Partial<AuctionsSearch> {
@@ -89,16 +88,14 @@ function toSearchPatch(draft: Draft): Partial<AuctionsSearch> {
   };
 }
 
-const statusOptions = AUCTION_STATUSES.filter(
-  (status) => status !== "Unknown",
-).map((status) => ({
+const statusOptions = AUCTION_STATUSES.filter((status) => status !== 'Unknown').map((status) => ({
   value: status,
   label: AUCTION_STATUS_LABELS[status],
 }));
 
-const tradingStatusOptions = TRADING_STATUSES.filter(
-  (status) => status !== "Unknown",
-).map((status) => ({ value: status, label: TRADING_STATUS_LABELS[status] }));
+const tradingStatusOptions = TRADING_STATUSES.filter((status) => status !== 'Unknown').map(
+  (status) => ({ value: status, label: TRADING_STATUS_LABELS[status] }),
+);
 
 const aucTypeOptions = FILTER_AUCTION_TYPES.map((type) => ({
   value: type,
@@ -108,22 +105,21 @@ const aucTypeOptions = FILTER_AUCTION_TYPES.map((type) => ({
 type FiltersFormProps = {
   search: AuctionsSearch;
   onApply: (next: Partial<AuctionsSearch>) => void;
-  /** Колонок в сетке полей: развёрнутая панель шире выезжающей. */
+
   columns?: 2 | 4;
-  /** Стили области полей: в Sheet она прокручивается, в развёрнутой панели — нет. */
+
   bodyClassName?: string;
-  /** Кнопки формы: в панели они внизу карточки, в Sheet — в закреплённом футере. */
+
   children: React.ReactNode;
 };
 
 type FilterFieldProps = {
   label: string;
   className?: string;
-  /** id выдаётся обёрткой и связывает подпись с контролом — снаружи его считать не нужно. */
+
   children: (id: string) => React.ReactNode;
 };
 
-/** Выбор города из мок-словаря; «Любой город» сбрасывает фильтр. */
 function CityFilter({
   id,
   value,
@@ -164,12 +160,6 @@ function FilterField({ label, className, children }: FilterFieldProps) {
   );
 }
 
-/**
- * Поля фильтров без внешней обёртки — их переиспользуют и развёрнутая панель, и выезжающая.
- * Черновик хранится локально и применяется по кнопке: так URL меняется один раз, а не на
- * каждый символ. Синхронизация с внешними изменениями URL (кнопка «назад», сброс) делается
- * через `key` на стороне страницы, а не эффектом.
- */
 export function FiltersForm({
   search,
   onApply,
@@ -192,8 +182,8 @@ export function FiltersForm({
     >
       <div
         className={cn(
-          "grid grid-cols-1 gap-4 sm:grid-cols-2",
-          columns === 4 && "xl:grid-cols-4",
+          'grid grid-cols-1 gap-4 sm:grid-cols-2',
+          columns === 4 && 'xl:grid-cols-4',
           bodyClassName,
         )}
       >

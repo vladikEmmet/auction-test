@@ -19,9 +19,18 @@ export function AuctionOrganizerBlock({ auction }: { auction: AuctionDetailVm })
         <FieldList
           fields={[
             { label: 'Организация', value: auction.organizer.name },
-            { label: 'ИНН / КПП', value: `${auction.organizer.inn} / ${auction.organizer.kpp}` },
-            { label: 'Код подписчика', value: auction.organizer.subscriberCode },
-            { label: 'Информационная база', value: auction.organizer.infobaseCode },
+            {
+              label: 'ИНН / КПП',
+              value: `${auction.organizer.inn} / ${auction.organizer.kpp}`,
+            },
+            {
+              label: 'Код подписчика',
+              value: auction.organizer.subscriberCode,
+            },
+            {
+              label: 'Информационная база',
+              value: auction.organizer.infobaseCode,
+            },
           ]}
         />
 
@@ -37,7 +46,10 @@ export function AuctionOrganizerBlock({ auction }: { auction: AuctionDetailVm })
         ) : (
           <ul className="space-y-2">
             {auction.contacts.map((contact, index) => (
-              <li key={`${contact.phone ?? ''}-${index}`} className="rounded-md border border-border p-2.5 text-sm">
+              <li
+                key={`${contact.phone ?? ''}-${index}`}
+                className="rounded-md border border-border p-2.5 text-sm"
+              >
                 <p className="font-medium">{formatEmpty(contact.name)}</p>
                 <p className="text-muted-foreground">
                   {formatEmpty(contact.phone)}
@@ -82,11 +94,16 @@ export function AuctionCargoBlock({ auction }: { auction: AuctionDetailVm }) {
             { label: 'Груз', value: cargo.name },
             { label: 'Тип кузова', value: cargo.bodyType },
             { label: 'Количество ТС', value: formatNumber(cargo.truckCount) },
-            { label: 'Расстояние', value: formatNumber(cargo.distanceKm, 'км') },
+            {
+              label: 'Расстояние',
+              value: formatNumber(cargo.distanceKm, 'км'),
+            },
             {
               label: 'Цена груза',
               value: cargo.price ? (
-                formatMoney(Number(cargo.price), { currency: auction.payment.currency })
+                formatMoney(Number(cargo.price), {
+                  currency: auction.payment.currency,
+                })
               ) : (
                 <span className="text-muted-foreground">скрыта организатором</span>
               ),
@@ -102,14 +119,20 @@ export function AuctionCargoBlock({ auction }: { auction: AuctionDetailVm }) {
               label: 'Типы погрузки',
               value: cargo.loadingTypes.length > 0 ? cargo.loadingTypes.join(', ') : '—',
             },
-            { label: 'Документы', value: cargo.docs.length > 0 ? cargo.docs.join(', ') : '—' },
+            {
+              label: 'Документы',
+              value: cargo.docs.length > 0 ? cargo.docs.join(', ') : '—',
+            },
             {
               label: 'Контейнер',
               value: cargo.containered
                 ? `${formatEmpty(cargo.containerType)} ${formatEmpty(cargo.containerSize)}`
                 : 'нет',
             },
-            { label: 'Международная перевозка', value: cargo.isInternational ? 'да' : 'нет' },
+            {
+              label: 'Международная перевозка',
+              value: cargo.isInternational ? 'да' : 'нет',
+            },
           ]}
         />
 
@@ -140,13 +163,20 @@ export function AuctionPaymentBlock({ auction }: { auction: AuctionDetailVm }) {
         <FieldList
           fields={[
             { label: 'Форма оплаты', value: auction.payment.form },
-            { label: 'Отсрочка', value: formatEmpty(auction.payment.delayLabel) },
+            {
+              label: 'Отсрочка',
+              value: formatEmpty(auction.payment.delayLabel),
+            },
             { label: 'Предоплата', value: formatEmpty(auction.payment.prepay) },
             {
               label: 'Валюта',
               value: `${auction.payment.currency} (${auction.payment.currencyCode})`,
             },
-            { label: 'Условие', value: formatEmpty(auction.payment.condition), wide: true },
+            {
+              label: 'Условие',
+              value: formatEmpty(auction.payment.condition),
+              wide: true,
+            },
           ]}
         />
       </CardContent>
@@ -165,9 +195,18 @@ export function AuctionTradingSettingsBlock({ auction }: { auction: AuctionDetai
       <CardContent>
         <FieldList
           fields={[
-            { label: 'Начало торгов', value: formatDateTime(auction.trading.startTime) },
-            { label: 'Окончание торгов', value: formatDateTime(auction.trading.stopTime) },
-            { label: 'Единица ставки', value: auction.trading.measurementLabel || '—' },
+            {
+              label: 'Начало торгов',
+              value: formatDateTime(auction.trading.startTime),
+            },
+            {
+              label: 'Окончание торгов',
+              value: formatDateTime(auction.trading.stopTime),
+            },
+            {
+              label: 'Единица ставки',
+              value: auction.trading.measurementLabel || '—',
+            },
             {
               label: 'Продление после ставки',
               value: settings.prolongAfterBet == null ? '—' : `${settings.prolongAfterBet} мин`,
@@ -194,12 +233,17 @@ export function AuctionTradingSettingsBlock({ auction }: { auction: AuctionDetai
   );
 }
 
-/** Явный список ограничений из DTO — чтобы поведение UI было видно проверяющему. */
 export function AuctionRestrictionsBlock({ auction }: { auction: AuctionDetailVm }) {
-  const restrictions: Array<{ flag: keyof AuctionDetailVm['restrictions']; label: string }> = [
+  const restrictions: Array<{
+    flag: keyof AuctionDetailVm['restrictions'];
+    label: string;
+  }> = [
     { flag: 'canSetBet', label: 'can_set_bet' },
     { flag: 'hideBetsHistory', label: 'hide_bets_history' },
-    { flag: 'hidePointsAddressAndContacts', label: 'hide_points_address_and_contacts' },
+    {
+      flag: 'hidePointsAddressAndContacts',
+      label: 'hide_points_address_and_contacts',
+    },
     { flag: 'noViewCargoPrice', label: 'no_view_cargo_price' },
     { flag: 'hidePlaces', label: 'hide_places' },
   ];
@@ -212,7 +256,7 @@ export function AuctionRestrictionsBlock({ auction }: { auction: AuctionDetailVm
       <CardContent className="flex flex-wrap gap-1.5">
         {restrictions.map(({ flag, label }) => {
           const enabled = auction.restrictions[flag];
-          // can_set_bet — единственный флаг, где true означает «разрешено».
+
           const positive = flag === 'canSetBet' ? enabled : !enabled;
           return (
             <Badge key={flag} variant={positive ? 'success' : 'warning'}>

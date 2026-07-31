@@ -1,7 +1,6 @@
 export const HOUR = 60 * 60 * 1000;
 export const DAY = 24 * HOUR;
 
-/** Детерминированный PRNG: одинаковый сид — одинаковые данные между перезапусками. */
 export function mulberry32(seed: number): () => number {
   let state = seed;
   return () => {
@@ -13,7 +12,6 @@ export function mulberry32(seed: number): () => number {
   };
 }
 
-/** API отдаёт даты без смещения: `2026-05-26T09:00:00`. */
 export function apiDate(date: Date): string {
   const pad = (value: number) => String(value).padStart(2, '0');
   return (
@@ -27,10 +25,9 @@ export function uuidFor(index: number): string {
   return `a0000000-0000-4000-8000-${tail}`;
 }
 
-/** Циклический выбор из справочника: данные распределяются равномерно и предсказуемо. */
 export function pick<T>(items: readonly T[], index: number): T {
   const item = items[index % items.length];
-  // Остаток от деления всегда даёт валидный индекс — undefined тут означает пустой справочник.
+
   if (item === undefined) throw new Error('pick: справочник пуст');
   return item;
 }

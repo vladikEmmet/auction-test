@@ -1,15 +1,9 @@
 import { z } from 'zod';
 
-/**
- * Enum'ы описаны ровно так, как в openapi.auctions.v0.json.
- * Соответствие проверяется contract-тестом `contracts.contract.test.ts`.
- */
-
 export const AUCTION_TYPES = ['Request', 'Up', 'Down', 'FixPrice', 'Unknown'] as const;
 export const auctionTypeSchema = z.enum(AUCTION_TYPES).catch('Unknown');
 export type AuctionType = (typeof AUCTION_TYPES)[number];
 
-/** Фильтр `auc_type` в AuctionListRequest не принимает `Unknown` — набор уже, чем AuctionType. */
 export const FILTER_AUCTION_TYPES = ['Request', 'Up', 'Down', 'FixPrice'] as const;
 export type FilterAuctionType = (typeof FILTER_AUCTION_TYPES)[number];
 
@@ -27,7 +21,6 @@ export const AUCTION_STATUSES = [
 export const auctionStatusSchema = z.enum(AUCTION_STATUSES).catch('Unknown');
 export type AuctionStatus = (typeof AUCTION_STATUSES)[number];
 
-/** Полный торговый статус — используется в детальной карточке и в фильтре `status`. */
 export const TRADING_STATUSES = [
   'NotParticipating',
   'Leading',
@@ -42,11 +35,6 @@ export const TRADING_STATUSES = [
 export const tradingStatusSchema = z.enum(TRADING_STATUSES).catch('Unknown');
 export type TradingStatus = (typeof TRADING_STATUSES)[number];
 
-/**
- * В списке (`AuctionListItemTrading.status_mobile`) схема объявляет сокращённый набор —
- * без OnPending / ChoosingWinner / Accepted. Расхождение со схемой детальной карточки
- * оставлено намеренно: контракт воспроизводится как есть, а не «выравнивается».
- */
 export const LIST_TRADING_STATUSES = [
   'NotParticipating',
   'Leading',
@@ -70,10 +58,6 @@ export const PAYMENT_DELAY_TYPES = ['CalendarDays', 'WorkDays', 'Unknown'] as co
 export const paymentDelayTypeSchema = z.enum(PAYMENT_DELAY_TYPES).catch('Unknown');
 export type PaymentDelayType = (typeof PAYMENT_DELAY_TYPES)[number];
 
-/**
- * Числовые коды статусов из описаний схемы: фильтр `statuses` принимает числа,
- * а UI и URL оперируют читаемыми ключами.
- */
 export const AUCTION_STATUS_CODES: Record<Exclude<AuctionStatus, 'Unknown'>, number> = {
   Planning: 1,
   Auction: 2,
@@ -85,7 +69,6 @@ export const AUCTION_STATUS_CODES: Record<Exclude<AuctionStatus, 'Unknown'>, num
   Canceled: 8,
 };
 
-/** Числовые коды торгового статуса для фильтра `mobile_statuses`. */
 export const TRADING_STATUS_CODES: Partial<Record<TradingStatus, number>> = {
   NotParticipating: 1,
   Leading: 2,

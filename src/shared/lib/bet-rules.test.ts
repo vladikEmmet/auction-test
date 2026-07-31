@@ -67,7 +67,12 @@ describe('validateBetPrice', () => {
   });
 
   it('требует точного совпадения при фиксированной цене', () => {
-    const fixed = { aucType: 'FixPrice' as const, available: 30_000, min: null, max: null };
+    const fixed = {
+      aucType: 'FixPrice' as const,
+      available: 30_000,
+      min: null,
+      max: null,
+    };
     expect(codes(30_000, fixed)).toEqual([]);
     expect(codes(29_500, fixed)).toContain('direction');
   });
@@ -112,7 +117,14 @@ describe('suggestBetPrice', () => {
 
   it('предлагает шаг вверх для аукциона на повышение', () => {
     expect(
-      suggestBetPrice(getBetConstraints({ ...base, aucType: 'Up', available: 30_500, max: 50_000 })),
+      suggestBetPrice(
+        getBetConstraints({
+          ...base,
+          aucType: 'Up',
+          available: 30_500,
+          max: 50_000,
+        }),
+      ),
     ).toBe(31_000);
   });
 
@@ -155,7 +167,7 @@ describe('vatRatioFromPrices', () => {
   it('отбрасывает бессмысленные значения', () => {
     expect(vatRatioFromPrices(30_000, 0)).toBeNull();
     expect(vatRatioFromPrices(0, 25_000)).toBeNull();
-    // Цена без НДС выше цены с НДС или разница больше 100 % — данные битые.
+
     expect(vatRatioFromPrices(20_000, 25_000)).toBeNull();
     expect(vatRatioFromPrices(60_000, 25_000)).toBeNull();
   });

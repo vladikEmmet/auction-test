@@ -5,16 +5,12 @@ import { Badge, type BadgeProps } from '@/shared/ui/badge.component';
 
 type TimeLeftBadgeProps = {
   timeLeft: TimeLeft;
-  /** Подпись перед временем: «До конца торгов», «До начала». */
+
   prefix?: string;
   expiredLabel?: string;
   className?: string;
 };
 
-/**
- * Обратный отсчёт до конца торгов. `aria-live="off"` осознанно: секундные обновления
- * скринридеру не нужны, время дублируется рядом обычным текстом.
- */
 export function TimeLeftBadge({
   timeLeft,
   prefix = 'До конца',

@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createBetFormSchema,
-  parsePriceInput,
-} from '@/features/set-bet/model/bet-form.schema';
+import { createBetFormSchema, parsePriceInput } from '@/features/set-bet/model/bet-form.schema';
 import { getBetConstraints } from '@/shared/lib/bet-rules';
 
 const constraints = getBetConstraints({

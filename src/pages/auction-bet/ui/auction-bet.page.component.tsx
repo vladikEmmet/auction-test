@@ -15,10 +15,6 @@ import {
 } from '@/shared/ui/dialog.component';
 import { Skeleton } from '@/shared/ui/skeleton.component';
 
-/**
- * Режим установки ставки — отдельный роут `/auctions/$auctionUuid/bet`, поэтому форма
- * открывается по прямой ссылке. Визуально это модалка над детальной страницей.
- */
 export function AuctionBetPage() {
   const { auctionUuid } = useParams({ from: '/auctions/$auctionUuid/bet' });
   const navigate = useNavigate();
@@ -59,8 +55,11 @@ export function AuctionBetPage() {
             {query.data.your.hasBet ? (
               <Alert variant="info">
                 <AlertDescription>
-                  Ваша текущая ставка: {formatMoney(query.data.your.lastBetWithVat, { currency: query.data.payment.currency })} (
-                  {query.data.tradingStatusLabel}).
+                  Ваша текущая ставка:{' '}
+                  {formatMoney(query.data.your.lastBetWithVat, {
+                    currency: query.data.payment.currency,
+                  })}{' '}
+                  ({query.data.tradingStatusLabel}).
                 </AlertDescription>
               </Alert>
             ) : null}

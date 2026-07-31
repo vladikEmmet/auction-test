@@ -18,20 +18,16 @@ export type BetVm = {
   isCounter: boolean;
   isMine: boolean;
   comment: string | null;
-  /**
-   * Ставка перекрыта более поздней ставкой того же перевозчика. В DTO такого признака нет —
-   * он выводится на клиенте, потому что история торгов хранит все ставки, а действующей
-   * у каждой организации остаётся одна.
-   */
+
   isSuperseded: boolean;
 };
 
 export type BetsSummaryVm = {
   bets: BetVm[];
-  /** Участники считаются по уникальным организациям, а не по числу ставок. */
+
   participantsCount: number;
   activeCount: number;
-  /** Ставки, перекрытые более поздними ставками тех же перевозчиков. */
+
   supersededCount: number;
   rejectedCount: number;
   myBestBet: BetVm | null;
@@ -51,7 +47,7 @@ export function toBetVm(dto: BetItemDto): BetVm {
     place: dto.place ?? null,
     isWinner: dto.is_win,
     isRejected: dto.is_rejected,
-    // В схеме причина — пустая строка, когда ставка не отменена.
+
     cancelReason: dto.cancel_reason ? dto.cancel_reason : null,
     isCounter: dto.is_counter,
     isMine: dto.organization_id === CURRENT_USER.organizationId,
@@ -60,13 +56,6 @@ export function toBetVm(dto: BetItemDto): BetVm {
   };
 }
 
-/**
- * Находит id действующих ставок — по одной на организацию.
- *
- * Если сервер проставил места, действующими считаются ставки с местом: это его решение,
- * и спорить с ним клиент не должен. Когда рейтинг скрыт (`hide_places`), места приходят
- * пустыми у всех — тогда действующей считается последняя по времени ставка организации.
- */
 function findCurrentBetIds(dtos: BetItemDto[]): Set<number> {
   const active = dtos.filter((dto) => !dto.is_rejected);
   const byOrganization = new Map<number, BetItemDto[]>();
@@ -89,7 +78,7 @@ function findCurrentBetIds(dtos: BetItemDto[]): Set<number> {
 
     const latest = group.reduce((best, dto) => {
       const diff = new Date(dto.created_at).getTime() - new Date(best.created_at).getTime();
-      // При одинаковом времени берём запись с большим id: она создана позже.
+
       return diff > 0 || (diff === 0 && dto.id > best.id) ? dto : best;
     });
     current.add(latest.id);
@@ -111,14 +100,17 @@ export function toBetsSummaryVm(dtos: BetItemDto[]): BetsSummaryVm {
 
   return {
     bets,
-    participantsCount: new Set(dtos.filter((bet) => !bet.is_rejected).map((bet) => bet.organization_id))
-      .size,
+    participantsCount: new Set(
+      dtos.filter((bet) => !bet.is_rejected).map((bet) => bet.organization_id),
+    ).size,
     activeCount: active.length,
     supersededCount: active.filter((bet) => bet.isSuperseded).length,
     rejectedCount: bets.length - active.length,
     myBestBet:
       myBets.length === 0
         ? null
-        : myBets.reduce((best, bet) => ((bet.place ?? Infinity) < (best.place ?? Infinity) ? bet : best)),
+        : myBets.reduce((best, bet) =>
+            (bet.place ?? Infinity) < (best.place ?? Infinity) ? bet : best,
+          ),
   };
 }

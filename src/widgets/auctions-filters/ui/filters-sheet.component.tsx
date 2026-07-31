@@ -23,11 +23,6 @@ type FiltersSheetProps = {
   onReset: () => void;
 };
 
-/**
- * Те же фильтры в выезжающей панели — для случая, когда развёрнутая панель уже прокручена.
- * Открытием управляет Zustand-стор, поэтому кнопка в липкой строке и сама панель не знают
- * друг о друге.
- */
 export function FiltersSheet({ search, onApply, onReset }: FiltersSheetProps) {
   const isOpen = useFiltersPanelStore((state) => state.isOpen);
   const openPanel = useFiltersPanelStore((state) => state.open);

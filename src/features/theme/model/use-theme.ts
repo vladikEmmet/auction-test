@@ -16,11 +16,6 @@ function getSystemPrefersDark(): boolean {
     : false;
 }
 
-/**
- * Держит класс `dark` на <html> в соответствии с выбором пользователя и системной темой.
- * Системная тема — внешний источник, поэтому читается в состояние и обновляется подпиской,
- * а не вычисляется во время рендера.
- */
 export function useTheme(): {
   preference: ThemePreference;
   theme: ResolvedTheme;

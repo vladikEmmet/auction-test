@@ -6,7 +6,6 @@ import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
-/** Слои FSD снизу вверх. Слой может импортировать только слои строго ниже себя. */
 const LAYERS = ['shared', 'entities', 'features', 'widgets', 'pages', 'app'];
 
 function readSlices(layer) {
@@ -19,12 +18,6 @@ function readSlices(layer) {
   }
 }
 
-/**
- * Границы FSD:
- * 1) слой не видит слои выше себя;
- * 2) слайс не видит внутренности соседних слайсов своего слоя (только через их index).
- * Внутренние импорты слайса разрешены — иначе публичный API нечем собрать.
- */
 const layerBoundaries = LAYERS.flatMap((layer, index) => {
   const upperLayers = LAYERS.slice(index + 1).map((forbidden) => ({
     group: [`@/${forbidden}/*`],
@@ -55,7 +48,9 @@ const layerBoundaries = LAYERS.flatMap((layer, index) => {
 });
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'node_modules', 'public/mockServiceWorker.js'] },
+  {
+    ignores: ['dist', 'coverage', 'node_modules', 'public/mockServiceWorker.js'],
+  },
   js.configs.recommended,
   tseslint.configs.recommended,
   reactHooks.configs.flat['recommended-latest'],
@@ -79,7 +74,6 @@ export default tseslint.config(
   },
   ...layerBoundaries,
   {
-    // Тесты проверяют слои снаружи и не подчиняются правилам границ.
     files: ['**/*.{test,spec}.{ts,tsx}'],
     rules: { 'no-restricted-imports': 'off' },
   },

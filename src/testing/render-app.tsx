@@ -5,13 +5,6 @@ import { Toaster } from 'sonner';
 
 import { routeTree } from '@/app/router';
 
-/**
- * Поднимает приложение в памяти для интеграционных тестов: своя история, свой QueryClient
- * (кэш не протекает между тестами) и отключённые ретраи, чтобы ошибки всплывали сразу.
- *
- * Рендер обёрнут в act: первый переход роутера асинхронный, без обёртки React ругается
- * на обновления состояния вне act и до первого await в DOM ничего нет.
- */
 export async function renderApp(initialPath: string) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -32,7 +25,7 @@ export async function renderApp(initialPath: string) {
     utils = render(
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
-        {/* Тосты — часть требований ТЗ, поэтому монтируются и в тестовом окружении. */}
+
         <Toaster />
       </QueryClientProvider>,
     );

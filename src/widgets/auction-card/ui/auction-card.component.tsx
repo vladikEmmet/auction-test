@@ -23,9 +23,11 @@ export function AuctionCard({ auction }: AuctionCardProps) {
   const queryClient = useQueryClient();
   const priceMode = useVatDisplayStore((state) => state.mode);
   const timeLeft = useTimeLeft(auction.status === 'Auction' ? auction.stopTime : null);
-  const action = getPrimaryAction({ ...auction, isExpired: timeLeft.isExpired });
+  const action = getPrimaryAction({
+    ...auction,
+    isExpired: timeLeft.isExpired,
+  });
 
-  /** Prefetch по intent: наведение или фокус на карточке прогревает детальный запрос. */
   const prefetchDetail = () => {
     void queryClient.prefetchQuery(auctionDetailQuery(auction.uuid));
   };
@@ -58,7 +60,10 @@ export function AuctionCard({ auction }: AuctionCardProps) {
           </Badge>
           {auction.yourBet.hasBet ? (
             <Badge variant="success">
-              Моя ставка: {formatMoney(auction.yourBet.lastBet, { currency: auction.currency })}
+              Моя ставка:{' '}
+              {formatMoney(auction.yourBet.lastBet, {
+                currency: auction.currency,
+              })}
             </Badge>
           ) : (
             <Badge variant="neutral">Ставки нет</Badge>
@@ -93,8 +98,8 @@ export function AuctionCard({ auction }: AuctionCardProps) {
           <div className="min-w-0">
             <p className="truncate font-medium">{auction.cargo.name}</p>
             <p className="text-xs text-muted-foreground">
-              {formatNumber(auction.cargo.weight, 'т')} · {formatNumber(auction.cargo.volume, 'м³')} ·{' '}
-              {auction.cargo.bodyType}
+              {formatNumber(auction.cargo.weight, 'т')} · {formatNumber(auction.cargo.volume, 'м³')}{' '}
+              · {auction.cargo.bodyType}
               {auction.cargo.truckCount > 1 ? ` · ${auction.cargo.truckCount} ТС` : ''}
             </p>
           </div>
@@ -114,7 +119,10 @@ export function AuctionCard({ auction }: AuctionCardProps) {
             <dd className="tabular">
               {auction.price.perKm == null
                 ? '—'
-                : formatMoney(auction.price.perKm, { currency: auction.currency, precise: true })}
+                : formatMoney(auction.price.perKm, {
+                    currency: auction.currency,
+                    precise: true,
+                  })}
             </dd>
           </div>
           <div>
@@ -124,9 +132,6 @@ export function AuctionCard({ auction }: AuctionCardProps) {
             </dd>
           </div>
           <div>
-            {/* Шага ставки в списочном контракте нет: AuctionListItemTradingPrice — это
-                start / current / current_no_vat. Значение доступно на детальной странице,
-                выдумывать его здесь нельзя. */}
             <dt className="text-xs text-muted-foreground">Шаг ставки</dt>
             <dd
               className="tabular text-muted-foreground"
@@ -141,7 +146,11 @@ export function AuctionCard({ auction }: AuctionCardProps) {
       <CardFooter className="flex-col items-stretch gap-2 sm:flex-row sm:items-center">
         {action.kind === 'set-bet' || action.kind === 'edit-bet' ? (
           <Button asChild className="flex-1">
-            <Link to="/auctions/$auctionUuid/bet" params={{ auctionUuid: auction.uuid }} preload="intent">
+            <Link
+              to="/auctions/$auctionUuid/bet"
+              params={{ auctionUuid: auction.uuid }}
+              preload="intent"
+            >
               {action.label}
             </Link>
           </Button>

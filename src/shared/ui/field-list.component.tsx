@@ -5,11 +5,10 @@ import { cn } from '@/shared/lib/cn';
 export type Field = {
   label: string;
   value: React.ReactNode;
-  /** Значение занимает всю ширину — для длинных строк вроде условий оплаты. */
+
   wide?: boolean;
 };
 
-/** Двухколоночный список «поле → значение», сворачивающийся в одну колонку на мобильных. */
 export function FieldList({ fields, className }: { fields: Field[]; className?: string }) {
   return (
     <dl className={cn('grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2', className)}>

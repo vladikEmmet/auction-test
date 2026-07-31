@@ -6,7 +6,6 @@ import { getPrimaryAction } from '@/entities/auction/model/primary-action';
 import { createSeed } from '@/shared/api/msw/seed';
 import { toListItem, type AuctionRecord } from '@/shared/api/msw/store';
 
-/** Фиксированная дата — данные сида детерминированы и в тестах, и в браузере. */
 const seed = createSeed(new Date('2026-07-30T12:00:00'));
 
 const record = (index: number): AuctionRecord => {
@@ -35,7 +34,6 @@ describe('toAuctionCardVm', () => {
   });
 
   it('переживает отсутствие блоков price и your', () => {
-    // Седьмая запись сида: торги в статусе Planning, блоки price/your в списке = null.
     const vm = toAuctionCardVm(toListItem(record(6)));
     expect(vm.price.current).toBeNull();
     expect(vm.price.perKm).toBeNull();
@@ -47,7 +45,7 @@ describe('toAuctionCardVm', () => {
     expect(vm.route.addressHidden).toBe(true);
     expect(vm.route.fromAddress).toBeNull();
     expect(vm.route.toAddress).toBeNull();
-    // Город при этом остаётся видимым.
+
     expect(vm.route.fromCity).not.toBe('');
   });
 
@@ -56,7 +54,6 @@ describe('toAuctionCardVm', () => {
   });
 
   it('схлопывает незнакомый торговый статус в Unknown', () => {
-    // Девятая запись: status_mobile = OnPending, которого нет в списочном enum.
     const listItem = toListItem(record(8));
     expect(listItem.trading.status_mobile).toBe('Unknown');
     expect(toAuctionCardVm(listItem).tradingStatusLabel).toBe('Неизвестный статус');
@@ -105,10 +102,15 @@ describe('toAuctionDetailVm', () => {
     const detail = structuredClone(record(0).detail);
     detail.trading.can_set_bet = false;
     detail.trading.is_bidder = true;
-    detail.trading.your = { bet: false, last_bet: null, last_bet_with_vat: null, win: false };
+    detail.trading.your = {
+      bet: false,
+      last_bet: null,
+      last_bet_with_vat: null,
+      win: false,
+    };
 
     const vm = toAuctionDetailVm(detail);
-    // Ставку отменили: своей ставки нет, но участником пользователь остался.
+
     expect(vm.your.hasBet).toBe(false);
     expect(vm.isBidder).toBe(true);
     expect(
@@ -139,7 +141,12 @@ describe('toAuctionDetailVm', () => {
 
   it('превращает флаги погрузки и документов в списки подписей', () => {
     const detail = structuredClone(record(0).detail);
-    detail.cargo.loading_types = { side: true, top: false, rear: true, full: false };
+    detail.cargo.loading_types = {
+      side: true,
+      top: false,
+      rear: true,
+      full: false,
+    };
     detail.cargo.docs = { tir: false, cmr: true, t1: false, med: false };
 
     const vm = toAuctionDetailVm(detail);
@@ -163,9 +170,12 @@ describe('getPrimaryAction', () => {
   });
 
   it('предлагает изменить ставку, когда своя ставка уже есть', () => {
-    expect(auctionAction({ canSetBet: true, yourBet: { hasBet: true, lastBet: 100 } }).kind).toBe(
-      'edit-bet',
-    );
+    expect(
+      auctionAction({
+        canSetBet: true,
+        yourBet: { hasBet: true, lastBet: 100 },
+      }).kind,
+    ).toBe('edit-bet');
   });
 
   it('участнику закрытых торгов показывает ставки', () => {

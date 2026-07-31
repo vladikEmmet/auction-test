@@ -6,8 +6,7 @@ import { recalculatePlaces } from '@/shared/api/msw/ranking';
 import { VAT_RATE, withoutVat } from '@/shared/api/msw/vat';
 
 export type PlaceBetResult =
-  | { ok: true; bet: BetItemDto }
-  | { ok: false; errors: ValidationErrorDto[] };
+  { ok: true; bet: BetItemDto } | { ok: false; errors: ValidationErrorDto[] };
 
 export function placeBet(uuid: string, price: number): PlaceBetResult | undefined {
   const record = findRecord(uuid);
@@ -65,7 +64,6 @@ export function placeBet(uuid: string, price: number): PlaceBetResult | undefine
   record.bets.push(bet);
   recalculatePlaces(record);
 
-  // Текущая цена аукциона двигается к последней ставке.
   trading.price.current = priceWithVat;
   trading.price.current_no_vat = priceNoVat;
   trading.price.price_per_km = record.detail.cargo.distance
@@ -74,8 +72,7 @@ export function placeBet(uuid: string, price: number): PlaceBetResult | undefine
 
   const step = trading.price.step ?? 0;
   if (step > 0) {
-    const next =
-      record.detail.main.auc_type === 'Up' ? priceWithVat + step : priceWithVat - step;
+    const next = record.detail.main.auc_type === 'Up' ? priceWithVat + step : priceWithVat - step;
     trading.price.available = next > 0 ? roundMoney(next) : priceWithVat;
   } else {
     trading.price.available = priceWithVat;

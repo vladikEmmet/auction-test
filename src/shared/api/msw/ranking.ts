@@ -2,7 +2,6 @@ import type { AuctionType, BetItemDto } from '@/shared/api/contracts';
 import { isBetterBet } from '@/shared/lib/bet-rules';
 import type { AuctionRecord } from '@/shared/api/msw/db';
 
-/** Пересчитывает места: рейтинг строится по лучшей активной ставке каждой организации. */
 export function recalculatePlaces(record: AuctionRecord): void {
   const aucType: AuctionType = record.detail.main.auc_type;
   const active = record.bets.filter((bet) => !bet.is_rejected);

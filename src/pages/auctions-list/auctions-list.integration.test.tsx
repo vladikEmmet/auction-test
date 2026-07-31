@@ -8,7 +8,6 @@ import { server } from '@/shared/api/msw/node';
 import { setObservedElementsVisible } from '@/testing/intersection-observer';
 import { renderApp } from '@/testing/render-app';
 
-/** Список загружен, когда скелетоны исчезли. */
 const waitForList = () =>
   waitFor(() => expect(screen.queryByLabelText('Загрузка аукционов')).not.toBeInTheDocument());
 
@@ -39,7 +38,10 @@ describe('страница списка аукционов', () => {
             message: 'Upstream временно недоступен.',
             trace_id: null,
           },
-          { status: 503, headers: { 'Content-Type': 'application/problem+json' } },
+          {
+            status: 503,
+            headers: { 'Content-Type': 'application/problem+json' },
+          },
         ),
       ),
     );
@@ -83,7 +85,11 @@ describe('страница списка аукционов', () => {
     await waitForList();
 
     expect(auctionLinks().length).toBeGreaterThan(0);
-    expect(router.state.location.search).toMatchObject({ page: 1, per_page: 20, sort: 'newest' });
+    expect(router.state.location.search).toMatchObject({
+      page: 1,
+      per_page: 20,
+      sort: 'newest',
+    });
   });
 
   it('пагинация переключает страницу и меняет URL', async () => {
@@ -106,7 +112,6 @@ describe('страница списка аукционов', () => {
     const { router } = await renderApp('/auctions');
     await waitForList();
 
-    // Панель на экране — кнопки вызова выезжающей быть не должно.
     expect(screen.queryByRole('button', { name: /Фильтры/ })).not.toBeInTheDocument();
 
     const target = auctionLinks()[0]!.textContent!.replace('Заявка № ', '');
@@ -124,7 +129,6 @@ describe('страница списка аукционов', () => {
 
     const target = auctionLinks()[0]!.textContent!.replace('Заявка № ', '');
 
-    // Панель фильтров ушла из области видимости — как при прокрутке списка вниз.
     act(() => setObservedElementsVisible(false));
 
     await user.click(await screen.findByRole('button', { name: /Фильтры/ }));
@@ -133,9 +137,11 @@ describe('страница списка аукционов', () => {
     await user.type(panel.getByLabelText('Номер заявки'), target);
     await user.click(panel.getByRole('button', { name: /Применить/ }));
 
-    // Панель закрылась, условие уехало в URL — прокручивать страницу не пришлось.
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    expect(router.state.location.search).toMatchObject({ cargo_num: target, page: 1 });
+    expect(router.state.location.search).toMatchObject({
+      cargo_num: target,
+      page: 1,
+    });
     await waitFor(() => expect(auctionLinks()).toHaveLength(1));
   });
 
@@ -145,12 +151,17 @@ describe('страница списка аукционов', () => {
     await waitForList();
 
     expect(screen.getByLabelText('Активные фильтры')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Убрать фильтр: Погрузка: Москва' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Убрать фильтр: Погрузка: Москва' }),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Убрать фильтр: Только мои торги' }));
 
     await waitFor(() => {
-      expect(router.state.location.search).toMatchObject({ load_city: 'Москва', page: 1 });
+      expect(router.state.location.search).toMatchObject({
+        load_city: 'Москва',
+        page: 1,
+      });
     });
     expect(router.state.location.search).not.toHaveProperty('is_bidder');
   });
@@ -169,7 +180,6 @@ describe('страница списка аукционов', () => {
     const group = within(screen.getByRole('group', { name: 'Тема оформления' }));
     const option = (name: string) => group.getByRole('button', { name });
 
-    // Изначально выбран системный вариант; в jsdom matchMedia отвечает «светлая».
     expect(option('Как в системе')).toHaveAttribute('aria-pressed', 'true');
     expect(document.documentElement).not.toHaveClass('dark');
 

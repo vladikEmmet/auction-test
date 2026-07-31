@@ -17,7 +17,7 @@ export function auctionListQuery(request: AuctionListRequestDto) {
   return queryOptions({
     queryKey: auctionKeys.list(request),
     queryFn: ({ signal }) => fetchAuctionList(request, signal),
-    // Мапперы в select: ViewModel пересчитывается только при смене данных.
+
     select: (data) => ({
       items: data.data.map(toAuctionCardVm),
       meta: data.meta,

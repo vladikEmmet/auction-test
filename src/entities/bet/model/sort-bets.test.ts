@@ -24,9 +24,25 @@ const bet = (overrides: Partial<BetVm> & Pick<BetVm, 'id'>): BetVm => ({
 });
 
 const bets: BetVm[] = [
-  bet({ id: 1, place: 2, priceWithVat: 29_500, createdAt: '2026-07-30T12:05:00' }),
-  bet({ id: 2, place: 1, priceWithVat: 29_000, createdAt: '2026-07-30T12:10:00' }),
-  bet({ id: 3, place: null, priceWithVat: 31_000, createdAt: '2026-07-30T12:01:00', isRejected: true }),
+  bet({
+    id: 1,
+    place: 2,
+    priceWithVat: 29_500,
+    createdAt: '2026-07-30T12:05:00',
+  }),
+  bet({
+    id: 2,
+    place: 1,
+    priceWithVat: 29_000,
+    createdAt: '2026-07-30T12:10:00',
+  }),
+  bet({
+    id: 3,
+    place: null,
+    priceWithVat: 31_000,
+    createdAt: '2026-07-30T12:01:00',
+    isRejected: true,
+  }),
 ];
 
 const ids = (result: BetVm[]) => result.map((item) => item.id);
@@ -37,7 +53,6 @@ describe('sortBets', () => {
   });
 
   it('ставки без места остаются в конце и при обратном порядке', () => {
-    // Отменённые ставки не должны всплывать наверх только потому, что place = null.
     const result = sortBets(bets, { field: 'place', direction: 'desc' });
     expect(result.at(0)?.id).toBe(3);
     expect(ids(result)).toEqual([3, 1, 2]);
@@ -69,7 +84,10 @@ describe('toggleBetSort', () => {
   it('повторный клик по колонке переворачивает направление', () => {
     const first = toggleBetSort(DEFAULT_BET_SORT, 'place');
     expect(first).toEqual({ field: 'place', direction: 'desc' });
-    expect(toggleBetSort(first, 'place')).toEqual({ field: 'place', direction: 'asc' });
+    expect(toggleBetSort(first, 'place')).toEqual({
+      field: 'place',
+      direction: 'asc',
+    });
   });
 
   it('новая колонка начинает с возрастания', () => {

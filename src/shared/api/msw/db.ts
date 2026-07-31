@@ -1,14 +1,10 @@
 import type { AuctionShowResponseDto, BetItemDto } from '@/shared/api/contracts';
 
-/**
- * Запись мок-базы. Источник правды — `detail`; элемент списка строится проекцией
- * (см. `projections.ts`), поэтому после мутации список, деталка и ставки не могут разойтись.
- */
 export type AuctionRecord = {
   uuid: string;
   detail: AuctionShowResponseDto;
   bets: BetItemDto[];
-  /** Поля, которые есть только в списочном DTO. */
+
   list: {
     prioritySort: number;
     isAssembly: boolean;
@@ -19,7 +15,7 @@ export type AuctionRecord = {
     comment: string | null;
     consignor: string | null;
     consignee: string | null;
-    /** Список объявляет trading.price и trading.your nullable — воспроизводим и этот случай. */
+
     hasPriceBlock: boolean;
     hasYourBlock: boolean;
   };
@@ -28,7 +24,6 @@ export type AuctionRecord = {
 let records: AuctionRecord[] = [];
 let nextBetId = 1;
 
-/** Наполняет базу копией сида: тесты и перезагрузка страницы начинают с чистого состояния. */
 export function resetStore(seed: AuctionRecord[]): void {
   records = seed.map((record) => structuredClone(record));
   nextBetId =

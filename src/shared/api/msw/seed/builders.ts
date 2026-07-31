@@ -72,7 +72,13 @@ export function buildBets(params: {
   const makeBet = (
     price: number,
     offsetMinutes: number,
-    party: { id: number; name: string; inn: string; subscriberId: number; contact: string },
+    party: {
+      id: number;
+      name: string;
+      inn: string;
+      subscriberId: number;
+      contact: string;
+    },
     overrides: Partial<BetItemDto> = {},
   ): BetItemDto => {
     const priceWithVat = roundMoney(price);
@@ -149,7 +155,10 @@ export function buildBets(params: {
           subscriberId: competitor.subscriberId,
           contact: competitor.contact,
         },
-        { is_rejected: true, cancel_reason: 'Перевозчик отозвал ставку: нет свободного ТС' },
+        {
+          is_rejected: true,
+          cancel_reason: 'Перевозчик отозвал ставку: нет свободного ТС',
+        },
       ),
     );
   }

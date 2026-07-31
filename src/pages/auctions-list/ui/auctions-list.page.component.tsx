@@ -4,11 +4,7 @@ import { PackageSearchIcon, TriangleAlertIcon } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 
 import { auctionListQuery } from '@/entities/auction';
-import {
-  buildListRequest,
-  clearFilters,
-  type AuctionsSearch,
-} from '@/features/filter-auctions';
+import { buildListRequest, clearFilters, type AuctionsSearch } from '@/features/filter-auctions';
 import { isApiError } from '@/shared/api/api-error';
 import { useOutOfView } from '@/shared/lib/use-out-of-view';
 import { Button } from '@/shared/ui/button.component';
@@ -21,7 +17,6 @@ export function AuctionsListPage() {
   const search = useSearch({ from: '/auctions' });
   const navigate = useNavigate({ from: '/auctions' });
 
-  // Пока панель фильтров на экране, липкая строка не дублирует её кнопкой.
   const filtersRef = useRef<HTMLDivElement>(null);
   const areFiltersOutOfView = useOutOfView(filtersRef);
 
@@ -45,7 +40,6 @@ export function AuctionsListPage() {
         </p>
       </header>
 
-      {/* key сбрасывает черновик фильтров при внешнем изменении URL (назад/вперёд, сброс). */}
       <div ref={filtersRef}>
         <FiltersPanel
           key={JSON.stringify(search)}

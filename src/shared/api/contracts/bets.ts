@@ -35,7 +35,6 @@ export const betListResponseSchema = z.object({
   bets: z.array(betItemSchema),
 });
 
-/** Тело POST /auctions/{auctionUuid}/bets. */
 export const setBetRequestSchema = z.object({
   price: z.number(),
 });

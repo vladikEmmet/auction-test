@@ -2,17 +2,12 @@ import { z } from 'zod';
 
 import { FILTER_AUCTION_TYPES, TRADING_STATUSES } from '@/shared/api/contracts/enums';
 
-/** Дата-время в формате ISO 8601 со смещением — как требует `pattern` в схеме. */
 const isoDateTimeWithOffset = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(([+-]\d{2}:\d{2})|Z)$/);
 
 const sortDirection = z.enum(['asc', 'desc']);
 
-/**
- * Тело POST /auctions/list. Все поля необязательные (в схеме нет `required`),
- * поэтому builder отправляет только реально заданные фильтры.
- */
 export const auctionListRequestSchema = z.object({
   page: z.number().int().optional(),
   per_page: z.number().int().optional(),

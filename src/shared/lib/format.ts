@@ -2,11 +2,6 @@ const EMPTY = '—';
 
 export const DEFAULT_CURRENCY = 'RUB';
 
-/**
- * В DTO валюта приходит числовым кодом ISO 4217 (`payment.currency_code = "643"`),
- * а Intl ждёт буквенный. Незнакомый код не должен ронять форматирование — падаем
- * на рубли, но не печатаем сырое число вместо символа валюты.
- */
 const ISO_4217_NUMERIC_TO_ALPHA: Record<string, string> = {
   '643': 'RUB',
   '840': 'USD',
@@ -26,7 +21,6 @@ export function currencyFromCode(code: string | number | null | undefined): stri
   return ISO_4217_NUMERIC_TO_ALPHA[normalized] ?? DEFAULT_CURRENCY;
 }
 
-/** Intl.NumberFormat дорогой в создании — кэшируем по валюте и точности. */
 const moneyFormatters = new Map<string, Intl.NumberFormat>();
 
 function moneyFormatter(currency: string, precise: boolean): Intl.NumberFormat {
@@ -47,24 +41,21 @@ function moneyFormatter(currency: string, precise: boolean): Intl.NumberFormat {
   return formatter;
 }
 
-const numberFormatter = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 3 });
+const numberFormatter = new Intl.NumberFormat('ru-RU', {
+  maximumFractionDigits: 3,
+});
 
-/** Прочерк вместо пустого значения: nullable-полей в схеме много, показывать «null» нельзя. */
 export function formatEmpty(value: string | null | undefined): string {
   return value == null || value === '' ? EMPTY : value;
 }
 
 export type MoneyOptions = {
-  /** Буквенный код валюты; получать из `currencyFromCode`. */
   currency?: string;
-  /** Две цифры после запятой — для цены за км и прочих мелких величин. */
+
   precise?: boolean;
 };
 
-export function formatMoney(
-  value: number | null | undefined,
-  options: MoneyOptions = {},
-): string {
+export function formatMoney(value: number | null | undefined, options: MoneyOptions = {}): string {
   if (value == null || !Number.isFinite(value)) return EMPTY;
   return moneyFormatter(options.currency ?? DEFAULT_CURRENCY, options.precise ?? false).format(
     value,
@@ -77,11 +68,6 @@ export function formatNumber(value: number | null | undefined, unit?: string): s
   return unit ? `${formatted} ${unit}` : formatted;
 }
 
-/**
- * Даты в API приходят без таймзоны (`2026-05-26T09:00:00`) — это локальное время
- * организатора. `new Date()` в этом случае трактует строку как локальную, что нам и нужно;
- * добавлять смещение нельзя, иначе поедут часы погрузки.
- */
 export function parseApiDate(value: string | null | undefined): Date | null {
   if (!value) return null;
   const date = new Date(value);
@@ -91,7 +77,11 @@ export function parseApiDate(value: string | null | undefined): Date | null {
 export function formatDate(value: string | null | undefined): string {
   const date = parseApiDate(value);
   if (!date) return EMPTY;
-  return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return date.toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 }
 
 export function formatDateTime(value: string | null | undefined): string {

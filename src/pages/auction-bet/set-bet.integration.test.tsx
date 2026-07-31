@@ -8,16 +8,14 @@ import { getAuction, getBets } from '@/shared/api/msw/store';
 import { CURRENT_USER } from '@/shared/config/env';
 import { renderApp } from '@/testing/render-app';
 
-/** Аукцион на понижение с открытыми торгами: ставки разрешены. */
 const DOWN_AUCTION = uuidFor(0);
-/** Ставки запрещены: can_set_bet = false. */
+
 const CLOSED_AUCTION = uuidFor(4);
-/** История ставок скрыта организатором. */
+
 const HIDDEN_HISTORY_AUCTION = uuidFor(3);
 
 const priceInput = () => screen.getByLabelText(/Ваша цена/);
 
-/** Тексты внутри модалки ищем точечно: те же подписи есть и на детальной странице. */
 const dialog = () => screen.getByRole('dialog');
 
 describe('установка ставки', () => {
@@ -66,8 +64,6 @@ describe('установка ставки', () => {
     await renderApp(`/auctions/${DOWN_AUCTION}/bet`);
     await screen.findByRole('dialog');
 
-    // Шаг вверх в аукционе на понижение: цена остаётся в границах min/max,
-    // поэтому сработает именно проверка направления торгов.
     const higher = (auction.trading.price.current ?? 0) + (auction.trading.price.step ?? 0);
     expect(higher).toBeLessThanOrEqual(auction.trading.price.max ?? Infinity);
 
@@ -77,7 +73,7 @@ describe('установка ставки', () => {
 
     const alerts = await within(dialog()).findAllByRole('alert');
     expect(alerts.map((alert) => alert.textContent).join(' ')).toMatch(/понижение/);
-    // Запрос не ушёл: клиентская валидация совпадает с серверной.
+
     expect(getBets(DOWN_AUCTION, true)!).toHaveLength(betsBefore);
   });
 
@@ -91,7 +87,9 @@ describe('установка ставки', () => {
     await user.click(screen.getByRole('button', { name: 'Отправить ставку' }));
 
     const alerts = await within(dialog()).findAllByRole('alert');
-    expect(alerts.map((alert) => alert.textContent).join(' ')).toContain('Цена должна быть числом.');
+    expect(alerts.map((alert) => alert.textContent).join(' ')).toContain(
+      'Цена должна быть числом.',
+    );
   });
 
   it('успешная ставка обновляет стор, закрывает модалку и попадает в историю', async () => {
@@ -106,11 +104,9 @@ describe('установка ставки', () => {
     await user.type(priceInput(), String(price));
     await user.click(screen.getByRole('button', { name: 'Отправить ставку' }));
 
-    // Модалка закрывается — значит мутация прошла успешно.
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(router.state.location.pathname).toBe(`/auctions/${DOWN_AUCTION}`);
 
-    // MSW-стор действительно изменился.
     const updated = getAuction(DOWN_AUCTION)!;
     expect(updated.trading.price.current).toBe(price);
     expect(updated.trading.your.bet).toBe(true);
@@ -121,10 +117,8 @@ describe('установка ставки', () => {
     );
     expect(mine.at(-1)?.price_with_vat).toBe(price);
 
-    // Детальная страница перезапросила данные и показывает новую ставку.
     expect(await screen.findByText('Моя ставка есть')).toBeInTheDocument();
 
-    // Success-toast с напоминанием об ограничении демо.
     expect(await screen.findByText('Ставка принята')).toBeInTheDocument();
     expect(
       await screen.findByText('Демо-данные живут до перезагрузки страницы.'),
@@ -154,19 +148,16 @@ describe('установка ставки', () => {
     const user = userEvent.setup();
     const submit = () => user.click(screen.getByRole('button', { name: 'Отправить ставку' }));
 
-    // Первая ставка: подставленное значение уже корректно, править не нужно.
     await renderApp(`/auctions/${DOWN_AUCTION}/bet`);
     await screen.findByRole('dialog');
     await submit();
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
-    // Вторая ставка — через «Изменить ставку» на детальной странице.
     await user.click(await screen.findByRole('link', { name: 'Изменить ставку' }));
     await screen.findByRole('dialog');
     await submit();
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
-    // В истории обе ставки, но действующая одна.
     await user.click(screen.getByRole('tab', { name: 'Ставки' }));
 
     const myBets = getBets(DOWN_AUCTION, false)!.filter(
@@ -176,10 +167,9 @@ describe('установка ставки', () => {
 
     expect(await screen.findByText('Неактуальных: 1')).toBeInTheDocument();
 
-    // Ищем в таблице: мобильный список ставок рендерится в DOM параллельно и скрыт стилями.
     const table = within(await screen.findByRole('table'));
     expect(table.getAllByText('Неактуальна')).toHaveLength(1);
-    // Ставки конкурентов не задеты: перекрытие считается внутри организации.
+
     expect(table.getAllByText('Активна').length).toBeGreaterThan(1);
   });
 
@@ -203,10 +193,12 @@ describe('установка ставки', () => {
 
   it('участнику закрытых торгов даёт открыть историю ставок с деталки', async () => {
     const user = userEvent.setup();
-    // Пятый аукцион: ставки запрещены, но пользователь в торгах участвовал.
+
     const { router } = await renderApp(`/auctions/${CLOSED_AUCTION}`);
 
-    const button = await screen.findByRole('button', { name: 'Смотреть ставки' });
+    const button = await screen.findByRole('button', {
+      name: 'Смотреть ставки',
+    });
     await user.click(button);
 
     await waitFor(() => expect(router.state.location.search).toMatchObject({ tab: 'bets' }));
@@ -217,7 +209,9 @@ describe('установка ставки', () => {
     const user = userEvent.setup();
     await renderApp(`/auctions/${DOWN_AUCTION}?tab=bets`);
 
-    const priceHeader = await screen.findByRole('button', { name: /Цена с НДС/ });
+    const priceHeader = await screen.findByRole('button', {
+      name: /Цена с НДС/,
+    });
     const column = () => screen.getByRole('columnheader', { name: /Цена с НДС/ });
 
     expect(column()).toHaveAttribute('aria-sort', 'none');

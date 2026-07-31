@@ -8,10 +8,6 @@ export const Sheet = DialogPrimitive.Root;
 export const SheetTrigger = DialogPrimitive.Trigger;
 export const SheetClose = DialogPrimitive.Close;
 
-/**
- * Выезжающая панель: снизу на мобильных, справа на desktop. Построена на Radix Dialog,
- * поэтому получает фокус-ловушку, закрытие по Esc и блокировку прокрутки фона бесплатно.
- */
 export function SheetContent({
   className,
   children,
@@ -44,7 +40,10 @@ export function SheetContent({
 export function SheetHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      className={cn('flex flex-col gap-1 border-b border-border p-4 pr-12 sm:p-5 sm:pr-12', className)}
+      className={cn(
+        'flex flex-col gap-1 border-b border-border p-4 pr-12 sm:p-5 sm:pr-12',
+        className,
+      )}
       {...props}
     />
   );

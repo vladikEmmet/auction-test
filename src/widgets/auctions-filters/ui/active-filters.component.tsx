@@ -9,7 +9,6 @@ type ActiveFiltersProps = {
   onReset: () => void;
 };
 
-/** Применённые фильтры видно, не разворачивая панель; каждый снимается по крестику. */
 export function ActiveFilters({ search, onChange, onReset }: ActiveFiltersProps) {
   const chips = describeActiveFilters(search);
   if (chips.length === 0) return null;
