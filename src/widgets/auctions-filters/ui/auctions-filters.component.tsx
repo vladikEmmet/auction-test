@@ -18,7 +18,6 @@ import {
   type AuctionsSearch,
 } from '@/features/filter-auctions';
 import { CITY_NAMES } from '@/shared/config/cities';
-import { cn } from '@/shared/lib/cn';
 import { Badge } from '@/shared/ui/badge.component';
 import { Button } from '@/shared/ui/button.component';
 import { Checkbox } from '@/shared/ui/checkbox.component';
@@ -32,14 +31,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select.component';
+import {
+  Sheet,
+  SheetBody,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet.component';
 
 /** Radix Select не допускает пустую строку как значение — используем явный маркер. */
 const ANY_CITY = '__any__';
 
 /**
- * Черновик фильтров живёт в локальном состоянии и применяется по кнопке — так URL
- * меняется один раз, а не на каждый символ. Синхронизация с внешними изменениями URL
- * (кнопка «назад», сброс) делается через `key` на стороне страницы, а не эффектом.
+ * Форма фильтров живёт в выезжающей панели: она доступна с любой точки прокрутки списка,
+ * а карточкам достаётся вся ширина. Черновик хранится локально и применяется по кнопке —
+ * так URL меняется один раз, а не на каждый символ. Синхронизация с внешними изменениями
+ * URL (кнопка «назад», сброс) делается через `key` на стороне страницы, а не эффектом.
  */
 type AuctionsFiltersProps = {
   search: AuctionsSearch;
@@ -124,7 +133,8 @@ export function AuctionsFilters({ search, onApply, onReset }: AuctionsFiltersPro
   const fieldId = useId();
   const [draft, setDraft] = useState<Draft>(() => toDraft(search));
   const isOpen = useFiltersPanelStore((state) => state.isOpen);
-  const togglePanel = useFiltersPanelStore((state) => state.toggle);
+  const openPanel = useFiltersPanelStore((state) => state.open);
+  const closePanel = useFiltersPanelStore((state) => state.close);
 
   const activeFilters = hasActiveFilters(search);
 
@@ -132,42 +142,30 @@ export function AuctionsFilters({ search, onApply, onReset }: AuctionsFiltersPro
     setDraft((previous) => ({ ...previous, [key]: value }));
 
   return (
-    <section className="rounded-lg border border-border bg-card p-4 shadow-sm">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="flex items-center gap-2 text-sm font-semibold">
-          <FilterIcon className="size-4" aria-hidden />
-          Фильтры
-          {activeFilters ? <Badge variant="default">активны</Badge> : null}
-        </h2>
+    <Sheet open={isOpen} onOpenChange={(open) => (open ? openPanel() : closePanel())}>
+      <SheetContent aria-describedby={`${fieldId}-hint`}>
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <FilterIcon className="size-4" aria-hidden />
+            Фильтры
+            {activeFilters ? <Badge variant="default">активны</Badge> : null}
+          </SheetTitle>
+          <SheetDescription id={`${fieldId}-hint`}>
+            Условия попадают в адресную строку — ссылку можно переслать.
+          </SheetDescription>
+        </SheetHeader>
 
-        <div className="flex items-center gap-2">
-          {activeFilters ? (
-            <Button variant="ghost" size="sm" onClick={onReset}>
-              <RotateCcwIcon /> Сбросить
-            </Button>
-          ) : null}
-          <Button
-            variant="outline"
-            size="sm"
-            className="lg:hidden"
-            onClick={togglePanel}
-            aria-expanded={isOpen}
-            aria-controls={`${fieldId}-panel`}
-          >
-            {isOpen ? 'Свернуть' : 'Развернуть'}
-          </Button>
-        </div>
-      </div>
-
-      <form
-        id={`${fieldId}-panel`}
-        className={cn('mt-4 flex-col gap-4', isOpen ? 'flex' : 'hidden lg:flex')}
-        onSubmit={(event) => {
-          event.preventDefault();
-          onApply(toSearchPatch(draft));
-        }}
-      >
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <form
+          id={`${fieldId}-form`}
+          className="contents"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onApply(toSearchPatch(draft));
+            closePanel();
+          }}
+        >
+          <SheetBody>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor={`${fieldId}-cargo-num`}>Номер заявки</Label>
             <Input
@@ -309,17 +307,20 @@ export function AuctionsFilters({ search, onApply, onReset }: AuctionsFiltersPro
               Только мои торги
             </label>
           </div>
-        </div>
+            </div>
 
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" onClick={onReset}>
-            Сбросить
-          </Button>
-          <Button type="submit">
-            <SearchIcon /> Применить
-          </Button>
-        </div>
-      </form>
-    </section>
+          </SheetBody>
+
+          <SheetFooter>
+            <Button type="button" variant="outline" onClick={onReset}>
+              <RotateCcwIcon /> Сбросить
+            </Button>
+            <Button type="submit">
+              <SearchIcon /> Применить
+            </Button>
+          </SheetFooter>
+        </form>
+      </SheetContent>
+    </Sheet>
   );
 }

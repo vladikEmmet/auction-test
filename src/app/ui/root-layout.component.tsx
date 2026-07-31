@@ -8,7 +8,8 @@ export function RootLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        {/* h-14 фиксирует высоту: на неё опирается sticky top-14 у панели фильтров. */}
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link to="/auctions" className="flex items-center gap-2 font-semibold">
             <TruckIcon className="size-5 text-primary" aria-hidden />
             Грузовые аукционы
