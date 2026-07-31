@@ -1,35 +1,27 @@
-import { SlidersHorizontalIcon } from 'lucide-react';
+import { SlidersHorizontalIcon } from "lucide-react";
 
 import {
   describeActiveFilters,
+  parsePerPage,
+  parseSortOption,
   PER_PAGE_OPTIONS,
+  SORT_LABELS,
   SORT_OPTIONS,
   useFiltersPanelStore,
   type AuctionsSearch,
-  type SortOption,
-} from '@/features/filter-auctions';
-import { VatToggle } from '@/features/vat-display';
-import { Badge } from '@/shared/ui/badge.component';
-import { Button } from '@/shared/ui/button.component';
-import { Label } from '@/shared/ui/label.component';
+} from "@/features/filter-auctions";
+import { VatToggle } from "@/features/vat-display";
+import { Badge } from "@/shared/ui/badge.component";
+import { Button } from "@/shared/ui/button.component";
+import { Label } from "@/shared/ui/label.component";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/shared/ui/select.component';
-import { ActiveFilters } from '@/widgets/auctions-filters/ui/active-filters.component';
-
-const SORT_LABELS: Record<SortOption, string> = {
-  newest: 'Сначала новые',
-  oldest: 'Сначала старые',
-  price_asc: 'Цена ↑',
-  price_desc: 'Цена ↓',
-  per_km_asc: 'Цена за км ↑',
-  per_km_desc: 'Цена за км ↓',
-  start_time_asc: 'Начало торгов ↑',
-};
+} from "@/shared/ui/select.component";
+import { ActiveFilters } from "@/widgets/auctions-filters/ui/active-filters.component";
 
 type FiltersToolbarProps = {
   search: AuctionsSearch;
@@ -69,12 +61,17 @@ export function FiltersToolbar({
         ) : null}
 
         <div className="flex items-center gap-2">
-          <Label htmlFor="sort" className="sr-only sm:not-sr-only sm:text-sm sm:font-normal sm:text-muted-foreground">
+          <Label
+            htmlFor="sort"
+            className="sr-only sm:not-sr-only sm:text-sm sm:font-normal sm:text-muted-foreground"
+          >
             Сортировка
           </Label>
           <Select
             value={search.sort}
-            onValueChange={(value) => onChange({ sort: value as SortOption, page: 1 })}
+            onValueChange={(value) =>
+              onChange({ sort: parseSortOption(value), page: 1 })
+            }
           >
             <SelectTrigger id="sort" className="h-8 w-40">
               <SelectValue />
@@ -96,7 +93,7 @@ export function FiltersToolbar({
           <Select
             value={String(search.per_page)}
             onValueChange={(value) =>
-              onChange({ per_page: Number(value) as AuctionsSearch['per_page'], page: 1 })
+              onChange({ per_page: parsePerPage(value), page: 1 })
             }
           >
             {/* w-20: на текст остаётся ~32px — двузначные значения не режутся. */}
@@ -118,7 +115,11 @@ export function FiltersToolbar({
 
       {activeCount > 0 ? (
         <div className="mt-2">
-          <ActiveFilters search={search} onChange={onChange} onReset={onReset} />
+          <ActiveFilters
+            search={search}
+            onChange={onChange}
+            onReset={onReset}
+          />
         </div>
       ) : null}
     </div>

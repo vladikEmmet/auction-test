@@ -3,7 +3,7 @@ import { CURRENT_USER } from '@/shared/config/env';
 import { roundMoney } from '@/shared/lib/bet-rules';
 import { COMPETITORS } from '@/shared/api/msw/dictionaries';
 import { CITY_DICTIONARY } from '@/shared/config/cities';
-import { apiDate, HOUR } from '@/shared/api/msw/seed/lib';
+import { apiDate, HOUR, pick } from '@/shared/api/msw/seed/lib';
 import { withoutVat } from '@/shared/api/msw/vat';
 
 export function buildRoutePoint(params: {
@@ -16,7 +16,7 @@ export function buildRoutePoint(params: {
   volume: number;
   hideContacts: boolean;
 }): RoutePointDto {
-  const city = CITY_DICTIONARY[params.cityIndex % CITY_DICTIONARY.length]!;
+  const city = pick(CITY_DICTIONARY, params.cityIndex);
 
   return {
     row_num: params.rowNum,
@@ -107,7 +107,7 @@ export function buildBets(params: {
   };
 
   for (let index = 0; index < params.competitorBets; index += 1) {
-    const competitor = COMPETITORS[index % COMPETITORS.length]!;
+    const competitor = pick(COMPETITORS, index);
     bets.push(
       makeBet(params.startPrice + direction * params.step * (index + 1), (index + 1) * 7, {
         id: competitor.id,
@@ -137,7 +137,7 @@ export function buildBets(params: {
   }
 
   if (params.rejectedBet) {
-    const competitor = COMPETITORS[1]!;
+    const competitor = pick(COMPETITORS, 1);
     bets.push(
       makeBet(
         params.startPrice + direction * params.step * (params.competitorBets + 2),

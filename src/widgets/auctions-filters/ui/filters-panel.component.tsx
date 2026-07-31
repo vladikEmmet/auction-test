@@ -5,7 +5,7 @@ import { Badge } from '@/shared/ui/badge.component';
 import { Button } from '@/shared/ui/button.component';
 import { FiltersForm } from '@/widgets/auctions-filters/ui/filters-form.component';
 
-type AuctionsFiltersProps = {
+type FiltersPanelProps = {
   search: AuctionsSearch;
   onApply: (next: Partial<AuctionsSearch>) => void;
   onReset: () => void;
@@ -15,7 +15,7 @@ type AuctionsFiltersProps = {
  * Развёрнутая панель фильтров в начале страницы. Пока она на экране, компактная кнопка
  * в липкой строке не нужна — та появляется только когда панель прокручена (см. useOutOfView).
  */
-export function AuctionsFilters({ search, onApply, onReset }: AuctionsFiltersProps) {
+export function FiltersPanel({ search, onApply, onReset }: FiltersPanelProps) {
   const activeFilters = hasActiveFilters(search);
 
   return (

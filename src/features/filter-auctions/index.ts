@@ -11,8 +11,12 @@ export {
   DEFAULT_SEARCH,
   hasActiveFilters,
   parseAuctionsSearch,
+  parsePerPage,
+  parseSortOption,
+  SORT_LABELS,
   PER_PAGE_OPTIONS,
   SORT_OPTIONS,
   type AuctionsSearch,
+  type PerPageOption,
   type SortOption,
 } from '@/features/filter-auctions/model/search-params';

@@ -15,7 +15,7 @@ import { Button } from '@/shared/ui/button.component';
 import { Pagination } from '@/shared/ui/pagination.component';
 import { StatePanel } from '@/shared/ui/state-panel.component';
 import { AuctionCard, AuctionCardSkeleton } from '@/widgets/auction-card';
-import { AuctionsFilters, FiltersSheet, FiltersToolbar } from '@/widgets/auctions-filters';
+import { FiltersPanel, FiltersSheet, FiltersToolbar } from '@/widgets/auctions-filters';
 
 export function AuctionsListPage() {
   const search = useSearch({ from: '/auctions' });
@@ -47,7 +47,7 @@ export function AuctionsListPage() {
 
       {/* key сбрасывает черновик фильтров при внешнем изменении URL (назад/вперёд, сброс). */}
       <div ref={filtersRef}>
-        <AuctionsFilters
+        <FiltersPanel
           key={JSON.stringify(search)}
           search={search}
           onApply={update}

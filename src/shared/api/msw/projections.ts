@@ -8,10 +8,13 @@ import { roundMoney } from '@/shared/lib/bet-rules';
 import type { AuctionRecord } from '@/shared/api/msw/db';
 import { withoutVat } from '@/shared/api/msw/vat';
 
+/** Списочный контракт знает не все торговые статусы — предикат сужает тип без каста. */
+function isListTradingStatus(status: TradingStatus): status is ListTradingStatus {
+  return LIST_TRADING_STATUSES.some((known) => known === status);
+}
+
 function toListTradingStatus(status: TradingStatus): ListTradingStatus {
-  return (LIST_TRADING_STATUSES as readonly string[]).includes(status)
-    ? (status as ListTradingStatus)
-    : 'Unknown';
+  return isListTradingStatus(status) ? status : 'Unknown';
 }
 
 function sumRouteCargo(record: AuctionRecord, field: 'weight' | 'volume'): number {

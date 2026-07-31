@@ -4,8 +4,11 @@ import { createRoot } from 'react-dom/client';
 import { App } from '@/app/app.component';
 import '@/app/styles/index.css';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error('Не найден #root: проверьте index.html');
+function requireRootElement(): HTMLElement {
+  const element = document.getElementById('root');
+  if (!element) throw new Error('Не найден #root: проверьте index.html');
+  return element;
+}
 
 /**
  * Приложение стартует только после запуска MSW, иначе первые запросы уйдут мимо моков.
@@ -15,7 +18,7 @@ async function bootstrap() {
   const { startMockServer } = await import('@/shared/api/msw/browser');
   await startMockServer();
 
-  createRoot(rootElement!).render(
+  createRoot(requireRootElement()).render(
     <StrictMode>
       <App />
     </StrictMode>,

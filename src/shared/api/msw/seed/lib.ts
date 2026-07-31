@@ -29,5 +29,8 @@ export function uuidFor(index: number): string {
 
 /** Циклический выбор из справочника: данные распределяются равномерно и предсказуемо. */
 export function pick<T>(items: readonly T[], index: number): T {
-  return items[index % items.length] as T;
+  const item = items[index % items.length];
+  // Остаток от деления всегда даёт валидный индекс — undefined тут означает пустой справочник.
+  if (item === undefined) throw new Error('pick: справочник пуст');
+  return item;
 }
