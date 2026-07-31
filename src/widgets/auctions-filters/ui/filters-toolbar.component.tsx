@@ -99,7 +99,8 @@ export function FiltersToolbar({
               onChange({ per_page: Number(value) as AuctionsSearch['per_page'], page: 1 })
             }
           >
-            <SelectTrigger id="per-page" className="h-8 w-16">
+            {/* w-20: на текст остаётся ~32px — двузначные значения не режутся. */}
+            <SelectTrigger id="per-page" className="h-8 w-20">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
