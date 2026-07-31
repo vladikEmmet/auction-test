@@ -25,6 +25,21 @@ npm run preview    # просмотр собранной версии
 `src/main.tsx` до первого рендера, данные генерируются детерминированным сидом
 (~57 аукционов) и сбрасываются при перезагрузке страницы.
 
+## Демо
+
+Сборка публикуется на GitHub Pages автоматически: workflow `.github/workflows/deploy.yml`
+на каждый пуш в `main` прогоняет типы, линт и тесты, собирает проект и выкладывает его.
+Чтобы включить, один раз выберите в настройках репозитория **Settings → Pages → Source →
+GitHub Actions**. Адрес будет вида `https://<пользователь>.github.io/<репозиторий>/`.
+
+Приложение умеет жить в подпапке: базовый путь приходит из `VITE_BASE_PATH`, от него же
+считаются basepath роутера и адрес service worker'а MSW. Локальная проверка такой сборки:
+
+```bash
+VITE_BASE_PATH=/имя-репозитория/ npm run build
+cp dist/index.html dist/404.html   # SPA-фоллбэк для прямых ссылок
+```
+
 ## Стек
 
 React 19, TypeScript (strict), Vite 8, TanStack Router, TanStack Query v5,
