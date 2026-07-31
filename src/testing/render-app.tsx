@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
 import { act, render, type RenderResult } from '@testing-library/react';
+import { Toaster } from 'sonner';
 
 import { routeTree } from '@/app/router';
 
@@ -31,6 +32,8 @@ export async function renderApp(initialPath: string) {
     utils = render(
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        {/* Тосты — часть требований ТЗ, поэтому монтируются и в тестовом окружении. */}
+        <Toaster />
       </QueryClientProvider>,
     );
   });

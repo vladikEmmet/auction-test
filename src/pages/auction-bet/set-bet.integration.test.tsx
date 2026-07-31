@@ -123,6 +123,12 @@ describe('установка ставки', () => {
 
     // Детальная страница перезапросила данные и показывает новую ставку.
     expect(await screen.findByText('Моя ставка есть')).toBeInTheDocument();
+
+    // Success-toast с напоминанием об ограничении демо.
+    expect(await screen.findByText('Ставка принята')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Демо-данные живут до перезагрузки страницы.'),
+    ).toBeInTheDocument();
   });
 
   it('после ставки в истории появляется новая строка с местом 1', async () => {

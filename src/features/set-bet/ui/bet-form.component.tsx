@@ -89,7 +89,16 @@ export function BetForm({ auction, onSuccess, onCancel }: BetFormProps) {
     try {
       await mutation.mutateAsync(price);
       toast.success('Ставка принята', {
-        description: `${formatMoney(price, { currency })} — аукцион №${auction.cargoNum}`,
+        description: (
+          <>
+            {formatMoney(price, { currency })} — аукцион №{auction.cargoNum}
+            <br />
+            {/* Ограничение демо повторяется здесь: в момент ставки оно и важно. */}
+            <span className="text-muted-foreground">
+              Демо-данные живут до перезагрузки страницы.
+            </span>
+          </>
+        ),
       });
       onSuccess?.();
     } catch (error) {
