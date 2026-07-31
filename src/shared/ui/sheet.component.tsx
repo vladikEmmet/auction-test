@@ -19,7 +19,7 @@ export function SheetContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-[2px]" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-[2px]" />
       <DialogPrimitive.Content
         className={cn(
           'fixed z-50 flex flex-col gap-4 bg-card shadow-lg',

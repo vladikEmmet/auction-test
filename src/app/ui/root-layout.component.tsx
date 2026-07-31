@@ -2,6 +2,7 @@ import { Link, Outlet } from '@tanstack/react-router';
 import { TruckIcon } from 'lucide-react';
 import { Suspense } from 'react';
 
+import { ThemeToggle } from '@/features/theme';
 import { Skeleton } from '@/shared/ui/skeleton.component';
 
 export function RootLayout() {
@@ -14,9 +15,12 @@ export function RootLayout() {
             <TruckIcon className="size-5 text-primary" aria-hidden />
             Грузовые аукционы
           </Link>
-          <span className="text-xs text-muted-foreground">
-            Демо на моках MSW · ООО Перевозчик
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="hidden text-xs text-muted-foreground sm:inline">
+              Демо на моках MSW · ООО Перевозчик
+            </span>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

@@ -4,6 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Грузовые аукционы</title>
+    <script>
+      // Тема применяется до первого кадра, иначе при перезагрузке мигает светлым.
+      // Формат ключа задаёт zustand/persist — см. features/theme/model/theme.store.ts.
+      (function () {
+        try {
+          var stored = localStorage.getItem('auctions:theme');
+          var preference = stored ? JSON.parse(stored).state.preference : 'system';
+          var dark =
+            preference === 'dark' ||
+            (preference === 'system' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (error) {
+          /* сломанный localStorage не должен мешать запуску приложения */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

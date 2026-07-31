@@ -162,6 +162,26 @@ describe('страница списка аукционов', () => {
     expect((await screen.findAllByText(/До конца:/)).length).toBeGreaterThan(0);
   });
 
+  it('переключает тему из шапки и ставит класс на <html>', async () => {
+    const user = userEvent.setup();
+    await renderApp('/auctions');
+
+    const toggle = screen.getByRole('button', { name: /Переключить на/ });
+    expect(document.documentElement).not.toHaveClass('dark');
+
+    // Системная → светлая: класса всё ещё нет.
+    await user.click(toggle);
+    await waitFor(() => expect(document.documentElement).not.toHaveClass('dark'));
+
+    // Светлая → тёмная.
+    await user.click(toggle);
+    await waitFor(() => expect(document.documentElement).toHaveClass('dark'));
+
+    // Тёмная → системная: в jsdom matchMedia отвечает «светлая».
+    await user.click(toggle);
+    await waitFor(() => expect(document.documentElement).not.toHaveClass('dark'));
+  });
+
   it('открывает детальную страницу по клику на заявку', async () => {
     const user = userEvent.setup();
     const { router } = await renderApp('/auctions');
