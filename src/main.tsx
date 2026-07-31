@@ -10,6 +10,10 @@ function requireRootElement(): HTMLElement {
   return element;
 }
 
+function removeBootShell(): void {
+  document.getElementById('boot')?.remove();
+}
+
 async function bootstrap() {
   const { startMockServer } = await import('@/shared/api/msw/browser');
   await startMockServer();
@@ -19,6 +23,8 @@ async function bootstrap() {
       <App />
     </StrictMode>,
   );
+
+  requestAnimationFrame(removeBootShell);
 }
 
 void bootstrap();

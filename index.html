@@ -11,14 +11,112 @@
           var preference = stored ? JSON.parse(stored).state.preference : 'system';
           var dark =
             preference === 'dark' ||
-            (preference === 'system' &&
-              window.matchMedia('(prefers-color-scheme: dark)').matches);
+            (preference === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
           if (dark) document.documentElement.classList.add('dark');
         } catch {}
       })();
     </script>
+    <style>
+      #boot {
+        --boot-bg: #fcfcfd;
+        --boot-surface: #ffffff;
+        --boot-line: #e6e7eb;
+        --boot-block: #eceef2;
+        position: fixed;
+        inset: 0;
+        background: var(--boot-bg);
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+      }
+      html.dark #boot {
+        --boot-bg: #17181c;
+        --boot-surface: #202127;
+        --boot-line: #33353d;
+        --boot-block: #2b2d34;
+      }
+      #boot .boot-header {
+        height: 56px;
+        border-bottom: 1px solid var(--boot-line);
+        background: var(--boot-surface);
+      }
+      #boot .boot-main {
+        max-width: 80rem;
+        margin: 0 auto;
+        padding: 20px 16px;
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      }
+      #boot .boot-card {
+        height: 230px;
+        border: 1px solid var(--boot-line);
+        border-radius: 10px;
+        background: var(--boot-surface);
+        padding: 16px;
+      }
+      #boot .boot-line {
+        height: 12px;
+        border-radius: 6px;
+        background: var(--boot-block);
+        margin-bottom: 12px;
+        animation: boot-pulse 1.4s ease-in-out infinite;
+      }
+      #boot .boot-line.w-60 {
+        width: 60%;
+      }
+      #boot .boot-line.w-40 {
+        width: 40%;
+      }
+      #boot .boot-line.tall {
+        height: 56px;
+        margin-top: 24px;
+      }
+      @keyframes boot-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.45;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot .boot-line {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="boot" aria-hidden="true">
+      <div class="boot-header"></div>
+      <div class="boot-main">
+        <div class="boot-card">
+          <div class="boot-line w-60"></div>
+          <div class="boot-line w-40"></div>
+          <div class="boot-line"></div>
+          <div class="boot-line tall"></div>
+        </div>
+        <div class="boot-card">
+          <div class="boot-line w-60"></div>
+          <div class="boot-line w-40"></div>
+          <div class="boot-line"></div>
+          <div class="boot-line tall"></div>
+        </div>
+        <div class="boot-card">
+          <div class="boot-line w-60"></div>
+          <div class="boot-line w-40"></div>
+          <div class="boot-line"></div>
+          <div class="boot-line tall"></div>
+        </div>
+      </div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
